@@ -21,7 +21,7 @@ public class EnemySpawner : MonoBehaviour
         cam = Camera.main;
         if (player == null)
         {
-            var playerController = FindFirstObjectByType<PlayerController>();
+            var playerController = FindObjectOfType<PlayerController>();
             if (playerController != null) player = playerController.transform;
         }
     }

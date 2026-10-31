@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
@@ -9,7 +8,6 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
-    private InputAction moveAction;
 
     private Vector2 moveInput;
 
@@ -26,16 +24,15 @@ public class PlayerController : MonoBehaviour
         rb.gravityScale = 0f;
         rb.freezeRotation = true;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
-
-        // Project Settings > Input System'deki InputSystem_Actions (WASD, ok tuşları, gamepad)
-        moveAction = InputSystem.actions.FindAction("Player/Move");
     }
 
     void Update()
     {
-        moveInput = moveAction.ReadValue<Vector2>();
+        float x = Input.GetAxisRaw("Horizontal");
+        float y = Input.GetAxisRaw("Vertical");
+        moveInput = new Vector2(x, y);
 
-        // Çaprazda daha hızlı gitmesin diye normalize et (gamepad'de yarım basışlar korunur)
+        // Çaprazda daha hızlı gitmesin diye normalize et
         if (moveInput.sqrMagnitude > 1f)
             moveInput.Normalize();
 
@@ -51,6 +48,6 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.linearVelocity = moveInput * moveSpeed;
+        rb.velocity = moveInput * moveSpeed;
     }
 }

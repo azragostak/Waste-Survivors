@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 // Oyuncunun silah envanteri. Player objesine eklenir.
 // İleride level-up sistemi seçenekleri CanTake ile filtreleyip AddOrUpgrade'i çağıracak.
@@ -30,7 +29,7 @@ public class PlayerWeapons : MonoBehaviour
 
     void Update()
     {
-        if (debugLevelUpKey && Application.isEditor && Keyboard.current != null && Keyboard.current.lKey.wasPressedThisFrame)
+        if (debugLevelUpKey && Application.isEditor && Input.GetKeyDown(KeyCode.L))
         {
             foreach (var weapon in weapons)
             {

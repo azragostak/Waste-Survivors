@@ -10,27 +10,27 @@ public class Enemy : MonoBehaviour, IDamageable
     private static readonly List<Enemy> active = new();
     public static IReadOnlyList<Enemy> Active => active;
 
-    [SerializeField] private float maxHealth = 10f;
-    [SerializeField] private float moveSpeed = 1.5f;
-    [SerializeField] private Color hitFlashColor = new Color(1f, 0.4f, 0.4f);
-    [SerializeField] private float hitFlashDuration = 0.1f;
+    [SerializeField] protected float maxHealth = 10f;
+    [SerializeField] protected float moveSpeed = 1.5f;
+    [SerializeField] protected Color hitFlashColor = new Color(1f, 0.4f, 0.4f);
+    [SerializeField] protected float hitFlashDuration = 0.1f;
 
     // XP gem düşürme, skor vs. için
     public event Action<Enemy> Died;
 
     public bool IsAlive => health > 0f;
 
-    private float health;
-    private Transform target;
-    private Rigidbody2D rb;
-    private SpriteRenderer spriteRenderer;
-    private Color baseColor;
-    private Coroutine flashRoutine;
+    protected float health;
+    protected Transform target;
+    protected Rigidbody2D rb;
+    protected SpriteRenderer spriteRenderer;
+    protected Color baseColor;
+    protected Coroutine flashRoutine;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics() => active.Clear();
 
-    void Awake()
+    protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = 0f;
@@ -41,41 +41,46 @@ public class Enemy : MonoBehaviour, IDamageable
             baseColor = spriteRenderer.color;
     }
 
-    void OnEnable()
+    protected virtual void OnEnable()
     {
         health = maxHealth;
         active.Add(this);
     }
 
-    void OnDisable() => active.Remove(this);
+    protected virtual void OnDisable() => active.Remove(this);
 
-    void Start()
+    protected virtual void Start()
     {
         if (target == null)
         {
-            var player = FindFirstObjectByType<PlayerController>();
+            var player = FindObjectOfType<PlayerController>();
             if (player != null) target = player.transform;
         }
     }
 
     public void SetTarget(Transform newTarget) => target = newTarget;
 
-    void FixedUpdate()
+    protected virtual void FixedUpdate()
+    {
+        UpdateMovement();
+    }
+
+    protected virtual void UpdateMovement()
     {
         if (target == null)
         {
-            rb.linearVelocity = Vector2.zero;
+            rb.velocity = Vector2.zero;
             return;
         }
 
         Vector2 direction = ((Vector2)target.position - rb.position).normalized;
-        rb.linearVelocity = direction * moveSpeed;
+        rb.velocity = direction * moveSpeed;
 
         if (spriteRenderer != null && direction.x != 0f)
             spriteRenderer.flipX = direction.x < 0f;
     }
 
-    public void TakeDamage(float amount)
+    public virtual void TakeDamage(float amount)
     {
         if (!IsAlive) return;
 
@@ -93,7 +98,7 @@ public class Enemy : MonoBehaviour, IDamageable
         }
     }
 
-    private IEnumerator HitFlash()
+    protected virtual IEnumerator HitFlash()
     {
         spriteRenderer.color = hitFlashColor;
         yield return new WaitForSeconds(hitFlashDuration);
@@ -101,7 +106,7 @@ public class Enemy : MonoBehaviour, IDamageable
         flashRoutine = null;
     }
 
-    private void Die()
+    protected virtual void Die()
     {
         Died?.Invoke(this);
         Destroy(gameObject);
