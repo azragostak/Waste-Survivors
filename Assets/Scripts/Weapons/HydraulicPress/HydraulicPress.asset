@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 871d8a994d66447199bc270855bbd8a7, type: 3}
+  m_Name: HydraulicPress
+  m_EditorClassIdentifier: 
+  displayName: Hidrolik Pres
+  description: "D\xFC\u015Fmanlar\u0131n tepesine g\xF6kten a\u011F\u0131r bir geri d\xF6n\xFC\u015F\xFCm presi indirerek alan hasar\u0131 verir."
+  icon: {fileID: 21300000, guid: 8c941e39271a6764d998e7be9730d2eb, type: 3}
+  weaponPrefab: {fileID: 300200003, guid: a4b810c23f4d49e18190b72c65d1e306, type: 3}
+  levels:
+  - upgradeDescription: "D\xFC\u015Fmanlar\u0131n tepesine g\xF6kten hidrolik pres d\xFC\u015F\xFCrerek ezer."
+    stats:
+      damage: 14
+      cooldown: 3.2
+      area: 1.3
+      amount: 1
+      duration: 0.65
+      speed: 18
+      hitInterval: 0
+      range: 7.5
+  - upgradeDescription: "+1 hidrolik pres"
+    stats:
+      damage: 14
+      cooldown: 3.2
+      area: 1.3
+      amount: 2
+      duration: 0.65
+      speed: 18
+      hitInterval: 0
+      range: 7.5
+  - upgradeDescription: "Hasar +6, ezme alan\u0131 +%25"
+    stats:
+      damage: 20
+      cooldown: 3.2
+      area: 1.6
+      amount: 2
+      duration: 0.65
+      speed: 18
+      hitInterval: 0
+      range: 7.5
+  - upgradeDescription: "Daha s\u0131k ve daha h\u0131zl\u0131 d\xFC\u015Fer"
+    stats:
+      damage: 20
+      cooldown: 2.5
+      area: 1.6
+      amount: 2
+      duration: 0.65
+      speed: 22
+      hitInterval: 0
+      range: 8
+  - upgradeDescription: "+1 pres, hasar +8, daha geni\u015F ezme alan\u0131"
+    stats:
+      damage: 28
+      cooldown: 2.2
+      area: 1.95
+      amount: 3
+      duration: 0.7
+      speed: 24
+      hitInterval: 0
+      range: 8.5
+

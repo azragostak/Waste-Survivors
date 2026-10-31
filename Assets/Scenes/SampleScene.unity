@@ -322,6 +322,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingWeapons:
   - {fileID: 11400000, guid: 87392d6a96504c30b5657a1887fc6e21, type: 2}
+  - {fileID: 11400000, guid: a4b810c23f4d49e18190b72c65d1e307, type: 2}
   maxWeapons: 3
   debugLevelUpKey: 1
 --- !u!114 &27020610
