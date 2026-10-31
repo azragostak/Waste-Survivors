@@ -12,13 +12,22 @@ public class Enemy : MonoBehaviour, IDamageable
 
     [SerializeField] protected float maxHealth = 10f;
     [SerializeField] protected float moveSpeed = 1.5f;
+    [Tooltip("Esinti, çapraz hareket vs. dahil hiçbir durumda geçemeyeceği hız (oyuncu hızının altında tut)")]
+    [SerializeField] protected float maxSpeed = 1.9f;
+    [Tooltip("Spawner'da seçilme ağırlığı (2 = 1'e göre iki kat sık çıkar)")]
+    [SerializeField, Min(0f)] protected float spawnWeight = 1f;
     [SerializeField] protected Color hitFlashColor = new Color(1f, 0.4f, 0.4f);
     [SerializeField] protected float hitFlashDuration = 0.1f;
+
+    [Tooltip("Ölünce düşen geri dönüşüm parçası (XP)")]
+    [SerializeField] protected RecyclePickup recycleDrop;
+    [SerializeField, Min(0)] protected int experienceReward = 1;
 
     // XP gem düşürme, skor vs. için
     public event Action<Enemy> Died;
 
     public bool IsAlive => health > 0f;
+    public float SpawnWeight => spawnWeight;
 
     protected float health;
     protected Transform target;
@@ -63,6 +72,10 @@ public class Enemy : MonoBehaviour, IDamageable
     protected virtual void FixedUpdate()
     {
         UpdateMovement();
+
+        // Alt sınıf ne hesaplarsa hesaplasın oyuncudan hızlı olamasın
+        if (rb.velocity.sqrMagnitude > maxSpeed * maxSpeed)
+            rb.velocity = rb.velocity.normalized * maxSpeed;
     }
 
     protected virtual void UpdateMovement()
@@ -108,8 +121,17 @@ public class Enemy : MonoBehaviour, IDamageable
 
     protected virtual void Die()
     {
+        DropRecycle();
         Died?.Invoke(this);
         Destroy(gameObject);
+    }
+
+    protected virtual void DropRecycle()
+    {
+        if (recycleDrop == null || experienceReward <= 0) return;
+
+        var drop = Instantiate(recycleDrop, transform.position, Quaternion.identity);
+        drop.Experience = experienceReward;
     }
 
     // position'a en yakın en fazla 'count' düşmanı (range içinde) yakından uzağa sıralı döndürür

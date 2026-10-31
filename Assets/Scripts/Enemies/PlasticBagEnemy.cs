@@ -2,27 +2,28 @@ using UnityEngine;
 
 // Plastik Poşet düşmanı: Havada rüzgarla süzülerek, dalgalı ve hafif hareketlerle uçar.
 // Düz bir çizgide gitmez; rüzgarda salınır, havada hafifçe aşağı yukarı yükselip alçalır ve kanatlanır.
+// Sprite "Visual" child objesinde olmalı: yatma/şişme sadece görsele uygulanır, fizik gövdesi etkilenmez.
 public class PlasticBagEnemy : Enemy
 {
     [Header("Uçuş ve Rüzgar Hareketi")]
     [Tooltip("Rüzgarda sağa sola salınma frekansı")]
-    [SerializeField] private float swayFrequency = 2.5f;
+    [SerializeField] private float swayFrequency = 1.2f;
     [Tooltip("Rüzgarda sağa sola salınma genliği/genişliği")]
-    [SerializeField] private float swayAmplitude = 1.3f;
+    [SerializeField] private float swayAmplitude = 0.45f;
     [Tooltip("Havadaki dikey dalgalanma (bobbing) hızı")]
-    [SerializeField] private float bobFrequency = 3f;
+    [SerializeField] private float bobFrequency = 1.5f;
     [Tooltip("Havadaki dikey dalgalanma yüksekliği")]
-    [SerializeField] private float bobAmplitude = 0.35f;
+    [SerializeField] private float bobAmplitude = 0.2f;
     [Tooltip("Rüzgarla yön değiştirirken ivmelenme yumuşaklığı")]
     [SerializeField] private float acceleration = 3.5f;
 
     [Header("Görsel Süzülme")]
     [Tooltip("Rüzgar yönüne göre yana yatma açısı (tilt)")]
-    [SerializeField] private float maxTiltAngle = 20f;
+    [SerializeField] private float maxTiltAngle = 12f;
     [Tooltip("Hava akımıyla şişip sönme (flutter) hızı")]
-    [SerializeField] private float flutterSpeed = 6f;
+    [SerializeField] private float flutterSpeed = 4f;
     [Tooltip("Hava akımıyla şişip sönme miktarı")]
-    [SerializeField] private float flutterAmount = 0.08f;
+    [SerializeField] private float flutterAmount = 0.05f;
 
     [Header("Rüzgar Esintisi (Gust)")]
     [Tooltip("Zaman zaman rüzgar yakalayıp hızlanma özelliği")]
@@ -30,7 +31,7 @@ public class PlasticBagEnemy : Enemy
     [Tooltip("Esintiler arası süre")]
     [SerializeField] private float gustInterval = 5f;
     [Tooltip("Esinti hızı çarpanı")]
-    [SerializeField] private float gustSpeedMultiplier = 1.8f;
+    [SerializeField] private float gustSpeedMultiplier = 1.4f;
     [Tooltip("Esinti süresi")]
     [SerializeField] private float gustDuration = 1.2f;
 
@@ -39,13 +40,20 @@ public class PlasticBagEnemy : Enemy
     private float currentGustTime;
     private Transform visualTransform;
     private Vector3 baseScale = Vector3.one;
+    private bool facingLeft;
 
     protected override void Awake()
     {
         base.Awake();
-        visualTransform = spriteRenderer != null ? spriteRenderer.transform : transform;
-        if (visualTransform != null)
+        if (spriteRenderer != null && spriteRenderer.transform != transform)
+        {
+            visualTransform = spriteRenderer.transform;
             baseScale = visualTransform.localScale;
+        }
+        else
+        {
+            Debug.LogWarning($"{name}: Sprite bir child objede olmalı, süzülme animasyonu kapalı.", this);
+        }
 
         // Her poşetin hareketi farklı olsun diye rastgele faz kaydırması
         randomPhase = Random.Range(0f, 100f);
@@ -94,12 +102,22 @@ public class PlasticBagEnemy : Enemy
         Vector2 targetVelocity = flightDir * currentSpeed;
         rb.velocity = Vector2.Lerp(rb.velocity, targetVelocity, Time.fixedDeltaTime * acceleration);
 
-        UpdateFlightVisual(sway);
+        // Salınımda hız x'i sürekli işaret değiştirip sprite'ı titretiyordu; oyuncunun hangi tarafta olduğuna bak
+        if (Mathf.Abs(directDir.x) > 0.3f)
+            facingLeft = directDir.x < 0f;
     }
 
-    private void UpdateFlightVisual(float sway)
+    // Görsel her karede güncellensin (FixedUpdate'te kesik kesik oynuyordu)
+    void Update()
+    {
+        UpdateFlightVisual();
+    }
+
+    private void UpdateFlightVisual()
     {
         if (visualTransform == null) return;
+
+        float sway = Mathf.Sin((Time.time + randomPhase) * swayFrequency);
 
         // Rüzgarın estiği yöne doğru kanatlanma / yana yatma
         float tilt = -sway * maxTiltAngle;
@@ -109,8 +127,6 @@ public class PlasticBagEnemy : Enemy
         float flutter = Mathf.Sin(Time.time * flutterSpeed + randomPhase) * flutterAmount;
         visualTransform.localScale = new Vector3(baseScale.x * (1f + flutter), baseScale.y * (1f - flutter), baseScale.z);
 
-        // Uçuş yönüne göre flip
-        if (spriteRenderer != null && rb.velocity.x != 0f)
-            spriteRenderer.flipX = rb.velocity.x < 0f;
+        spriteRenderer.flipX = facingLeft;
     }
 }

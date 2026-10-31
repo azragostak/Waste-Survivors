@@ -2,17 +2,21 @@ using UnityEngine;
 
 // Varil düşmanı: Rastgele yerlerden çıkar, oyuncuya doğru yatay eksende
 // fırıl fırıl yuvarlanarak gelir ve saldırır.
+// Sprite "Visual" child objesinde olmalı: dönme/sekme sadece görsele uygulanır, fizik gövdesi etkilenmez.
 public class BarrelEnemy : Enemy
 {
     [Header("Yatay Yuvarlanma Hareketi")]
     [Tooltip("Yatay eksendeki yuvarlanma hızı")]
-    [SerializeField] private float horizontalSpeed = 4f;
+    [SerializeField] private float horizontalSpeed = 1.4f;
+
+    [Tooltip("Yön değiştirirken yatay hızın değişme ivmesi (düşük = daha geniş, yavaş dönüş)")]
+    [SerializeField] private float horizontalAcceleration = 3f;
 
     [Tooltip("Oyuncunun dikey (Y) hizasına yönelme hızı")]
     [SerializeField] private float verticalSteerSpeed = 1.8f;
 
     [Tooltip("Maksimum dikey hız")]
-    [SerializeField] private float maxVerticalSpeed = 2f;
+    [SerializeField] private float maxVerticalSpeed = 0.8f;
 
     [Tooltip("Oyuncuyu geçtikten sonra geri dönme mesafesi")]
     [SerializeField] private float overshootDistance = 2.5f;
@@ -26,12 +30,17 @@ public class BarrelEnemy : Enemy
 
     private float currentRollAngle;
     private float moveDirectionX = 1f;
+    private float currentVelocityX;
     private Transform visualTransform;
 
     protected override void Awake()
     {
         base.Awake();
-        visualTransform = spriteRenderer != null ? spriteRenderer.transform : transform;
+
+        if (spriteRenderer != null && spriteRenderer.transform != transform)
+            visualTransform = spriteRenderer.transform;
+        else
+            Debug.LogWarning($"{name}: Sprite bir child objede olmalı, yuvarlanma animasyonu kapalı.", this);
     }
 
     protected override void Start()
@@ -47,14 +56,17 @@ public class BarrelEnemy : Enemy
         {
             moveDirectionX = Random.value > 0.5f ? 1f : -1f;
         }
+
+        // Doğar doğmaz yuvarlanmaya başlasın
+        currentVelocityX = moveDirectionX * horizontalSpeed;
     }
 
     protected override void UpdateMovement()
     {
         if (target == null)
         {
-            rb.velocity = new Vector2(moveDirectionX * horizontalSpeed, 0f);
-            UpdateRollVisual();
+            UpdateHorizontalVelocity();
+            rb.velocity = new Vector2(currentVelocityX, 0f);
             return;
         }
 
@@ -77,10 +89,20 @@ public class BarrelEnemy : Enemy
         float diffY = targetPos.y - currentPos.y;
         float targetVy = Mathf.Clamp(diffY * verticalSteerSpeed, -maxVerticalSpeed, maxVerticalSpeed);
 
-        // 3. Hızı Uygula: Daima güçlü bir yatay hız ile yuvarlanır
-        rb.velocity = new Vector2(moveDirectionX * horizontalSpeed, targetVy);
+        // 3. Hızı Uygula: Yön değişince anında geri dönmez, yavaşlayıp ters yöne hızlanır
+        UpdateHorizontalVelocity();
+        rb.velocity = new Vector2(currentVelocityX, targetVy);
+    }
 
-        // 4. Görsel Yuvarlanma: Sürekli 360 derece döner
+    private void UpdateHorizontalVelocity()
+    {
+        currentVelocityX = Mathf.MoveTowards(currentVelocityX, moveDirectionX * horizontalSpeed,
+            horizontalAcceleration * Time.fixedDeltaTime);
+    }
+
+    // Görsel her karede güncellensin (FixedUpdate'te kesik kesik dönüyordu)
+    void Update()
+    {
         UpdateRollVisual();
     }
 
@@ -88,20 +110,15 @@ public class BarrelEnemy : Enemy
     {
         if (visualTransform == null) return;
 
-        float speed = rb.velocity.magnitude;
-        if (speed > 0.05f)
-        {
-            // Sağa gidiyorsa saat yönünde (-), sola gidiyorsa saat yönünün tersine (+) döner
-            float dirSign = moveDirectionX > 0f ? -1f : 1f;
-            float stepDistance = speed * Time.fixedDeltaTime;
-            float angleDelta = dirSign * (stepDistance / Mathf.Max(0.05f, rollRadius)) * Mathf.Rad2Deg;
+        // Sadece yatay hız döndürür: sağa giderken saat yönünde (-), sola giderken tersine (+).
+        // Yön değiştirirken hız düştükçe dönüş de yavaşlar, durur ve ters yöne başlar.
+        float angleDelta = -currentVelocityX * Time.deltaTime / Mathf.Max(0.05f, rollRadius) * Mathf.Rad2Deg;
+        currentRollAngle = (currentRollAngle + angleDelta) % 360f;
+        visualTransform.localRotation = Quaternion.Euler(0f, 0f, currentRollAngle);
 
-            currentRollAngle = (currentRollAngle + angleDelta) % 360f;
-            visualTransform.localRotation = Quaternion.Euler(0f, 0f, currentRollAngle);
-
-            // Yerde yuvarlanırken hafif ritmik sekme
-            float bounce = Mathf.Abs(Mathf.Sin(currentRollAngle * Mathf.Deg2Rad * 2f)) * groundBounce;
-            visualTransform.localPosition = new Vector3(0f, bounce, 0f);
-        }
+        // Yerde yuvarlanırken hafif ritmik sekme (yavaşken azalır)
+        float speedFactor = Mathf.Clamp01(Mathf.Abs(currentVelocityX) / Mathf.Max(0.01f, horizontalSpeed));
+        float bounce = Mathf.Abs(Mathf.Sin(currentRollAngle * Mathf.Deg2Rad * 2f)) * groundBounce * speedFactor;
+        visualTransform.localPosition = new Vector3(0f, bounce, 0f);
     }
 }
