@@ -4,11 +4,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class Enemy : MonoBehaviour, IDamageable
+public class Enemy : MonoBehaviour, IDamageable, IHealth
 {
     // Sahnedeki tüm düşmanlar. Silahlar hedef bulmak için bunu kullanır (layer ayarı gerekmez).
     private static readonly List<Enemy> active = new();
     public static IReadOnlyList<Enemy> Active => active;
+
+    // UI için: GameHUD bunlarla can barı takar ve hasar sayısı gösterir
+    public static event Action<Enemy> Spawned;
+    public static event Action<Enemy, float> Damaged;
 
     [SerializeField] protected float maxHealth = 10f;
     [SerializeField] protected float moveSpeed = 1.5f;
@@ -18,6 +22,8 @@ public class Enemy : MonoBehaviour, IDamageable
     [SerializeField, Min(0f)] protected float spawnWeight = 1f;
     [SerializeField] protected Color hitFlashColor = new Color(1f, 0.4f, 0.4f);
     [SerializeField] protected float hitFlashDuration = 0.1f;
+    [Tooltip("Oyuncuya değince verdiği hasar")]
+    [SerializeField, Min(0f)] protected float contactDamage = 5f;
 
     [Tooltip("Ölünce düşen geri dönüşüm parçası (XP)")]
     [SerializeField] protected RecyclePickup recycleDrop;
@@ -28,6 +34,9 @@ public class Enemy : MonoBehaviour, IDamageable
 
     public bool IsAlive => health > 0f;
     public float SpawnWeight => spawnWeight;
+    public float ContactDamage => contactDamage;
+    public float CurrentHealth => Mathf.Max(0f, health);
+    public float MaxHealth => maxHealth;
 
     protected float health;
     protected Transform target;
@@ -37,7 +46,12 @@ public class Enemy : MonoBehaviour, IDamageable
     protected Coroutine flashRoutine;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void ResetStatics() => active.Clear();
+    private static void ResetStatics()
+    {
+        active.Clear();
+        Spawned = null;
+        Damaged = null;
+    }
 
     protected virtual void Awake()
     {
@@ -54,6 +68,7 @@ public class Enemy : MonoBehaviour, IDamageable
     {
         health = maxHealth;
         active.Add(this);
+        Spawned?.Invoke(this);
     }
 
     protected virtual void OnDisable() => active.Remove(this);
@@ -98,6 +113,8 @@ public class Enemy : MonoBehaviour, IDamageable
         if (!IsAlive) return;
 
         health -= amount;
+        Damaged?.Invoke(this, amount);
+
         if (health <= 0f)
         {
             Die();

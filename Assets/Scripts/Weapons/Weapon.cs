@@ -10,8 +10,19 @@ public abstract class Weapon : MonoBehaviour
 
     protected Transform Owner { get; private set; }
 
-    // Stat okumanın tek noktası: ileride pasif bonuslar (hasar %, alan % vs.) burada uygulanır.
-    protected WeaponStats Stats => Data.GetStats(Level);
+    // Stat okumanın tek noktası: pasif item bonusları (hasar %, alan %, bekleme süresi %) burada uygulanır.
+    protected WeaponStats Stats
+    {
+        get
+        {
+            var stats = Data.GetStats(Level);
+            stats.damage *= 1f + PlayerPassives.GetBonus(Owner, PassiveStat.Damage);
+            stats.area *= 1f + PlayerPassives.GetBonus(Owner, PassiveStat.Area);
+            // Bekleme süresi en fazla %70 kısalabilir
+            stats.cooldown *= Mathf.Max(0.3f, 1f - PlayerPassives.GetBonus(Owner, PassiveStat.CooldownReduction));
+            return stats;
+        }
+    }
 
     private float cooldownTimer;
 

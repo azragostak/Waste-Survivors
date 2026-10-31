@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 138f368a519b4dcaa8aeb7ca82564185, type: 3}
+  m_Name: Magnet
+  m_EditorClassIdentifier: 
+  displayName: "M\u0131knat\u0131s"
+  description: "Etraftaki geri d\u00F6n\u00FC\u015F\u00FCm par\u00E7alar\u0131n\u0131 daha uzaktan \u00E7eker."
+  icon: {fileID: 21300000, guid: 76ab4ff248b94a62a063e828ec4760bd, type: 3}
+  stat: 5
+  valuePerLevel: 0.25
+  maxLevel: 5

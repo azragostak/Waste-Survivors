@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Oyuncunun silah envanteri. Player objesine eklenir.
-// İleride level-up sistemi seçenekleri CanTake ile filtreleyip AddOrUpgrade'i çağıracak.
+// Level-up ekranı (LevelUpMenu) seçenekleri CanTake ile filtreleyip AddOrUpgrade'i çağırır.
 public class PlayerWeapons : MonoBehaviour
 {
     [SerializeField] private List<WeaponData> startingWeapons = new();
-    [SerializeField] private int maxWeapons = 6;
+    [SerializeField] private int maxWeapons = 3;
 
     [Header("Test")]
     [Tooltip("Editörde L tuşu tüm silahları 1 seviye yükseltir")]
@@ -16,6 +16,7 @@ public class PlayerWeapons : MonoBehaviour
     private readonly List<Weapon> weapons = new();
 
     public IReadOnlyList<Weapon> Weapons => weapons;
+    public int MaxWeapons => maxWeapons;
     public bool HasFreeSlot => weapons.Count < maxWeapons;
 
     public event Action<Weapon> WeaponAdded;

@@ -48,6 +48,6 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.velocity = moveInput * moveSpeed;
+        rb.velocity = moveInput * (moveSpeed * (1f + PlayerPassives.GetBonus(this, PassiveStat.MoveSpeed)));
     }
 }

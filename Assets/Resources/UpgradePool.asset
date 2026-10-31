@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6abc3c37f50a4a4c831479cf6d92243a, type: 3}
+  m_Name: UpgradePool
+  m_EditorClassIdentifier: 
+  weapons:
+  - {fileID: 11400000, guid: 87392d6a96504c30b5657a1887fc6e21, type: 2}
+  - {fileID: 11400000, guid: a4b810c23f4d49e18190b72c65d1e307, type: 2}
+  passiveItems:
+  - {fileID: 11400000, guid: 7d42230ef17342c0b04b1b4cf29b679c, type: 2}
+  - {fileID: 11400000, guid: 492a89e62f9549818dd5dfdef308bc1e, type: 2}
+  - {fileID: 11400000, guid: 6a070009c06e44e88e5bea7c1b48535d, type: 2}
+  - {fileID: 11400000, guid: 592dd31a07864fa59fbe3eb07fee9ec7, type: 2}
+  - {fileID: 11400000, guid: 25dc8e6b331a4417a5415cc3b853215c, type: 2}
+  - {fileID: 11400000, guid: 62f7edf5d9c042788ab26b4f828e04c9, type: 2}
+  - {fileID: 11400000, guid: e9cc13fd9c274e678c89076a8e7104e4, type: 2}

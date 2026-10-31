@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 138f368a519b4dcaa8aeb7ca82564185, type: 3}
+  m_Name: Heart
+  m_EditorClassIdentifier: 
+  displayName: "Organik Kalp"
+  description: "Do\u011Fa iyile\u015Ftik\u00E7e sen de g\u00FC\u00E7lenirsin."
+  icon: {fileID: 21300000, guid: 7f0d4e8f9bb943bdb8717363f15443fa, type: 3}
+  stat: 4
+  valuePerLevel: 20
+  maxLevel: 5

@@ -38,7 +38,8 @@ public class PlayerExperience : MonoBehaviour
 
     void Update()
     {
-        float radiusSqr = pickupRadius * pickupRadius;
+        float radius = pickupRadius * (1f + PlayerPassives.GetBonus(this, PassiveStat.PickupRadius));
+        float radiusSqr = radius * radius;
         Vector2 position = transform.position;
 
         foreach (var pickup in RecyclePickup.Active)

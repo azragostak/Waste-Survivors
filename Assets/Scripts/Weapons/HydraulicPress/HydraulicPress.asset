@@ -67,4 +67,53 @@ MonoBehaviour:
       speed: 24
       hitInterval: 0
       range: 8.5
-
+  - upgradeDescription: "Hasar +8"
+    stats:
+      damage: 36
+      cooldown: 2.2
+      area: 1.95
+      amount: 3
+      duration: 0.7
+      speed: 24
+      hitInterval: 0
+      range: 8.5
+  - upgradeDescription: "Ezme alan\u0131 +%15"
+    stats:
+      damage: 36
+      cooldown: 2.2
+      area: 2.25
+      amount: 3
+      duration: 0.7
+      speed: 24
+      hitInterval: 0
+      range: 8.5
+  - upgradeDescription: "Daha s\u0131k d\u00FC\u015Fer"
+    stats:
+      damage: 36
+      cooldown: 1.9
+      area: 2.25
+      amount: 3
+      duration: 0.7
+      speed: 24
+      hitInterval: 0
+      range: 8.5
+  - upgradeDescription: "+1 pres"
+    stats:
+      damage: 36
+      cooldown: 1.9
+      area: 2.25
+      amount: 4
+      duration: 0.7
+      speed: 24
+      hitInterval: 0
+      range: 8.5
+  - upgradeDescription: "MAX: Hasar +14, daha geni\u015F alan, daha h\u0131zl\u0131 ve s\u0131k d\u00FC\u015Fer"
+    stats:
+      damage: 50
+      cooldown: 1.7
+      area: 2.5
+      amount: 4
+      duration: 0.7
+      speed: 28
+      hitInterval: 0
+      range: 8.5

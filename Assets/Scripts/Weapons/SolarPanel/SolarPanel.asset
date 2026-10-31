@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayName: "G\xFCne\u015F Paneli"
   description: "D\xFC\u015Fmanlara do\u011Fru f\u0131rlat\u0131lan, kuruldu\u011Fu yerde etraf\u0131na elektrik \xE7arpan taret."
-  icon: {fileID: 0}
+  icon: {fileID: -8646419420524770900, guid: 67f409968300ba248a4e3bad3de4af46, type: 3}
   weaponPrefab: {fileID: 1847201993541200003, guid: 346715dff1f645fcadfb983334bdf161, type: 3}
   levels:
   - upgradeDescription: "D\xFC\u015Fmanlara g\xFCne\u015F paneli f\u0131rlat\u0131r. Panel kuruldu\u011Fu yerde etraf\u0131na elektrik \xE7arpar."
@@ -67,3 +67,53 @@ MonoBehaviour:
       speed: 8
       hitInterval: 0.7
       range: 8
+  - upgradeDescription: "Hasar +4"
+    stats:
+      damage: 16
+      cooldown: 2.5
+      area: 1.8
+      amount: 3
+      duration: 6
+      speed: 8
+      hitInterval: 0.7
+      range: 8
+  - upgradeDescription: "Elektrik alan\u0131 +%15, s\u00FCre +1 sn"
+    stats:
+      damage: 16
+      cooldown: 2.5
+      area: 2.05
+      amount: 3
+      duration: 7
+      speed: 8
+      hitInterval: 0.7
+      range: 8
+  - upgradeDescription: "+1 panel"
+    stats:
+      damage: 16
+      cooldown: 2.5
+      area: 2.05
+      amount: 4
+      duration: 7
+      speed: 8
+      hitInterval: 0.7
+      range: 8
+  - upgradeDescription: "Daha s\u0131k f\u0131rlat\u0131r ve daha s\u0131k \u00E7arpar"
+    stats:
+      damage: 16
+      cooldown: 2.1
+      area: 2.05
+      amount: 4
+      duration: 7
+      speed: 8
+      hitInterval: 0.55
+      range: 8
+  - upgradeDescription: "MAX: +1 panel, hasar +8, menzil +1"
+    stats:
+      damage: 24
+      cooldown: 2.1
+      area: 2.05
+      amount: 5
+      duration: 7
+      speed: 8
+      hitInterval: 0.55
+      range: 9
