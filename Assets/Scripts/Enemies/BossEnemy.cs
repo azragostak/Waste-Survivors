@@ -41,7 +41,14 @@ public class BossEnemy : Enemy
     [SerializeField] private AudioClip deathSound;
     [SerializeField, Range(0f, 1f)] private float deathVolume = 0.85f;
 
-    public string BossName => Enraged ? bossName + " - ENRAGED" : bossName;
+    public string BossName
+    {
+        get
+        {
+            string baseName = GameLanguage.IsTurkish && bossName == "TRASH MOUNTAIN" ? "ÇÖP TEPESİ" : bossName;
+            return Enraged ? baseName + GameLanguage.Tr(" - ENRAGED", " - ÖFKELİ") : baseName;
+        }
+    }
     // BossFight faz 2'de açar
     public bool Enraged { get; set; }
 

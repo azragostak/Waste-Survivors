@@ -34,8 +34,8 @@ public class SeedProjectile : MonoBehaviour
     [Header("Meyve Düşürme (Can Yenileme)")]
     [Tooltip("Tohumla öldürülen düşmandan düşecek meyve görseli (meyve.asset)")]
     [SerializeField] private Sprite fruitSprite;
-    [Tooltip("Tohumun son vuruşu yaptığı düşmandan meyve düşme olasılığı (0.005 = %0.5)")]
-    [SerializeField, Range(0f, 1f)] private float fruitDropChance = 0.005f;
+    [Tooltip("Tohumun son vuruşu yaptığı düşmandan meyve düşme olasılığı (0.01 = %1)")]
+    [SerializeField, Range(0f, 1f)] private float fruitDropChance = 0.01f;
     [Tooltip("Toplanan meyvenin yenilediği can miktarı")]
     [SerializeField, Min(1f)] private float fruitHealAmount = 25f;
     [Tooltip("Düşen meyvenin sahne ölçeği")]
@@ -73,6 +73,7 @@ public class SeedProjectile : MonoBehaviour
     {
         pools.Clear();
         targeted.Clear();
+        player = null;
     }
 
     public static bool IsTargeted(Enemy enemy) =>

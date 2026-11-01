@@ -228,12 +228,17 @@ public class RestorationFinale : MonoBehaviour
         var experience = FindObjectOfType<PlayerExperience>();
         var cleaner = FindObjectOfType<GroundCleaner>();
 
-        string stats =
-            $"Time {GameSession.FormatTime(session != null ? session.Elapsed : 0f)}" +
-            $"     Level {(experience != null ? experience.Level : 1)}" +
-            $"     Enemies defeated {(session != null ? session.Kills : 0)}" +
-            $"     Area cleaned {(cleaner != null ? cleaner.CleanedTiles : 0)} tiles";
+        string timeStr = GameSession.FormatTime(session != null ? session.Elapsed : 0f);
+        int level = experience != null ? experience.Level : 1;
+        int kills = session != null ? session.Kills : 0;
+        int tiles = cleaner != null ? cleaner.CleanedTiles : 0;
+        string stats = GameLanguage.IsTurkish
+            ? $"Süre {timeStr}     Seviye {level}     Temizlenen kirlilik {kills}     Temizlenen alan {tiles} kare"
+            : $"Time {timeStr}     Level {level}     Enemies defeated {kills}     Area cleaned {tiles} tiles";
 
-        EndScreen.Show("THE WORLD IS CLEAN!", "The pollution is gone. Nature is back.", new Color(0.55f, 1f, 0.5f), stats);
+        EndScreen.Show(
+            GameLanguage.Tr("THE WORLD IS CLEAN!", "DÜNYA TEMİZLENDİ!"),
+            GameLanguage.Tr("The pollution is gone. Nature is back.", "Kirlilik sona erdi. Doğa geri döndü."),
+            new Color(0.55f, 1f, 0.5f), stats);
     }
 }

@@ -143,14 +143,18 @@ public class LevelUpMenu : MonoBehaviour
         if (choosingStartWeapon)
         {
             BuildStartWeaponOptions();
-            UIBuilder.SetText(titleText, "CHOOSE YOUR WEAPON");
-            UIBuilder.SetText(subtitleText, "You will start with this weapon  (1 - 2 - 3)");
+            UIBuilder.SetText(titleText, GameLanguage.Tr("CHOOSE YOUR WEAPON", "SİLAHINI SEÇ"));
+            UIBuilder.SetText(subtitleText, GameLanguage.Tr(
+                "You will start with this weapon  (1 - 2 - 3)",
+                "Oyuna bu silahla başlayacaksın  (1 - 2 - 3)"));
         }
         else
         {
             BuildOptions();
-            UIBuilder.SetText(titleText, "LEVEL UP!");
-            UIBuilder.SetText(subtitleText, "Choose an upgrade  (1 - 2 - 3)");
+            UIBuilder.SetText(titleText, GameLanguage.Tr("LEVEL UP!", "SEVİYE ATLADIN!"));
+            UIBuilder.SetText(subtitleText, GameLanguage.Tr(
+                "Choose an upgrade  (1 - 2 - 3)",
+                "Bir geliştirme seç  (1 - 2 - 3)"));
         }
 
         for (int i = 0; i < cards.Count; i++)
@@ -218,9 +222,9 @@ public class LevelUpMenu : MonoBehaviour
             if (data == null) continue;
             candidates.Add(new Option
             {
-                tag = "STARTING WEAPON",
-                title = data.displayName,
-                description = data.description,
+                tag = GameLanguage.Tr("STARTING WEAPON", "BAŞLANGIÇ SİLAHI"),
+                title = GameLanguage.WeaponName(data),
+                description = GameLanguage.WeaponDescription(data),
                 icon = UIBuilder.GetWeaponIcon(data),
                 color = WeaponColor,
                 apply = () => weapons.AddOrUpgrade(data),
@@ -245,14 +249,14 @@ public class LevelUpMenu : MonoBehaviour
             var baseData = weapon.Data;
             var evolved = baseData.evolution;
             string recipe = baseData.evolutionRequirement != null
-                ? $"{baseData.displayName} + {baseData.evolutionRequirement.displayName}"
-                : baseData.displayName;
+                ? $"{GameLanguage.WeaponName(baseData)} + {GameLanguage.ItemName(baseData.evolutionRequirement)}"
+                : GameLanguage.WeaponName(baseData);
             var target = weapon;
             currentOptions.Add(new Option
             {
-                tag = "EVOLUTION!",
-                title = evolved.displayName,
-                description = $"<color=#e0b0ff>{recipe}</color>\n\n{evolved.description}",
+                tag = GameLanguage.Tr("EVOLUTION!", "EVRİM!"),
+                title = GameLanguage.WeaponName(evolved),
+                description = $"<color=#e0b0ff>{recipe}</color>\n\n{GameLanguage.WeaponDescription(evolved)}",
                 icon = UIBuilder.GetWeaponIcon(evolved),
                 color = EvolutionColor,
                 apply = () => weapons.Evolve(target),
@@ -282,11 +286,12 @@ public class LevelUpMenu : MonoBehaviour
                 var owned = weapons.GetWeapon(data);
                 if (owned != null && !owned.IsMaxLevel)
                 {
+                    string lvPrefix = GameLanguage.Tr("WEAPON  Lv", "SİLAH  Sv");
                     candidates.Add(new Option
                     {
-                        tag = $"WEAPON  Lv {owned.Level} → {owned.Level + 1}",
-                        title = data.displayName,
-                        description = data.GetUpgradeDescription(owned.Level + 1),
+                        tag = $"{lvPrefix} {owned.Level} → {owned.Level + 1}",
+                        title = GameLanguage.WeaponName(data),
+                        description = GameLanguage.WeaponUpgradeDescription(data, owned.Level + 1),
                         icon = UIBuilder.GetWeaponIcon(data),
                         color = WeaponColor,
                         apply = () => weapons.AddOrUpgrade(data),
@@ -296,9 +301,9 @@ public class LevelUpMenu : MonoBehaviour
                 {
                     candidates.Add(new Option
                     {
-                        tag = "NEW WEAPON",
-                        title = data.displayName,
-                        description = data.description,
+                        tag = GameLanguage.Tr("NEW WEAPON", "YENİ SİLAH"),
+                        title = GameLanguage.WeaponName(data),
+                        description = GameLanguage.WeaponDescription(data),
                         icon = UIBuilder.GetWeaponIcon(data),
                         color = WeaponColor,
                         apply = () => weapons.AddOrUpgrade(data),
@@ -316,10 +321,11 @@ public class LevelUpMenu : MonoBehaviour
                 var owned = passives.GetItem(data);
                 if (owned != null && !owned.IsMaxLevel)
                 {
+                    string lvPrefix = GameLanguage.Tr("ITEM  Lv", "EŞYA  Sv");
                     candidates.Add(new Option
                     {
-                        tag = $"ITEM  Lv {owned.Level} → {owned.Level + 1}",
-                        title = data.displayName,
+                        tag = $"{lvPrefix} {owned.Level} → {owned.Level + 1}",
+                        title = GameLanguage.ItemName(data),
                         description = $"{data.GetEffectText(owned.Level)}  →  {data.GetEffectText(owned.Level + 1)}",
                         icon = data.icon,
                         color = ItemColor,
@@ -330,9 +336,9 @@ public class LevelUpMenu : MonoBehaviour
                 {
                     candidates.Add(new Option
                     {
-                        tag = "NEW ITEM",
-                        title = data.displayName,
-                        description = $"{data.description}\n\n<color=#9fd0ff>{data.GetEffectText(1)}</color>",
+                        tag = GameLanguage.Tr("NEW ITEM", "YENİ EŞYA"),
+                        title = GameLanguage.ItemName(data),
+                        description = $"{GameLanguage.ItemDescription(data)}\n\n<color=#9fd0ff>{data.GetEffectText(1)}</color>",
                         icon = data.icon,
                         color = ItemColor,
                         apply = () => passives.AddOrUpgrade(data),
@@ -354,9 +360,9 @@ public class LevelUpMenu : MonoBehaviour
         {
             currentOptions.Add(new Option
             {
-                tag = "HEAL",
-                title = "Fresh Air",
-                description = "Restores 30 health.",
+                tag = GameLanguage.Tr("HEAL", "İYİLEŞME"),
+                title = GameLanguage.Tr("Fresh Air", "Temiz Hava"),
+                description = GameLanguage.Tr("Restores 30 health.", "30 can yeniler."),
                 color = HealColor,
                 apply = () => { if (health != null) health.Heal(30f); },
             });

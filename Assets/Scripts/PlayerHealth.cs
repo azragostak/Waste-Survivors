@@ -22,6 +22,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable, IHealth
     private float regenTimer;
     private float lifeStealWindowStart;
     private float lifeStealInWindow;
+    private float lifeStealDisplayRemainder;
     private SpriteRenderer spriteRenderer;
     private Color baseColor;
 
@@ -112,7 +113,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable, IHealth
     // (hızlı silahlar oyuncuyu ölümsüz yapmasın)
     public void LifeSteal(float amount, float maxPerSecond)
     {
-        if (!IsAlive || amount <= 0f || maxPerSecond <= 0f) return;
+        if (!IsAlive || amount <= 0f || maxPerSecond <= 0f || health >= MaxHealth) return;
 
         if (Time.time - lifeStealWindowStart >= 1f)
         {
@@ -123,8 +124,24 @@ public class PlayerHealth : MonoBehaviour, IDamageable, IHealth
         float allowed = Mathf.Min(amount, maxPerSecond - lifeStealInWindow);
         if (allowed <= 0f) return;
 
-        lifeStealInWindow += allowed;
+        float before = health;
         Heal(allowed);
+        float healed = health - before;
+        if (healed <= 0f) return;
+
+        lifeStealInWindow += healed;
+        lifeStealDisplayRemainder += healed;
+
+        int displayAmount = Mathf.FloorToInt(lifeStealDisplayRemainder + 0.05f);
+        if (displayAmount >= 1)
+        {
+            lifeStealDisplayRemainder = Mathf.Max(0f, lifeStealDisplayRemainder - displayAmount);
+            if (DamageNumbers.Instance != null)
+            {
+                Vector3 jitter = new Vector3(UnityEngine.Random.Range(-0.12f, 0.12f), UnityEngine.Random.Range(0f, 0.08f), 0f);
+                DamageNumbers.Instance.ShowHeal(transform.position + Vector3.up * 0.45f + jitter, displayAmount);
+            }
+        }
     }
 
     public void Heal(float amount)

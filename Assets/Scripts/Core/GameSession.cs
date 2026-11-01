@@ -48,6 +48,7 @@ public class GameSession : MonoBehaviour
 
     private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        if (FindObjectOfType<PlayerController>() == null) return;
         if (FindObjectOfType<GameSession>() == null)
             new GameObject("GameSession").AddComponent<GameSession>();
     }
@@ -181,10 +182,14 @@ public class GameSession : MonoBehaviour
         Time.timeScale = 0f;
 
         var experience = FindObjectOfType<PlayerExperience>();
-        string stats = $"Time {FormatTime(Elapsed)}" +
-                       $"     Level {(experience != null ? experience.Level : 1)}" +
-                       $"     Enemies defeated {Kills}";
-        EndScreen.Show("POLLUTION WINS", "The world is still waiting to be cleaned.", new Color(1f, 0.45f, 0.4f), stats);
+        int level = experience != null ? experience.Level : 1;
+        string stats = GameLanguage.IsTurkish
+            ? $"Süre {FormatTime(Elapsed)}     Seviye {level}     Temizlenen kirlilik {Kills}"
+            : $"Time {FormatTime(Elapsed)}     Level {level}     Enemies defeated {Kills}";
+        EndScreen.Show(
+            GameLanguage.Tr("POLLUTION WINS", "KİRLİLİK KAZANDI"),
+            GameLanguage.Tr("The world is still waiting to be cleaned.", "Dünya hâlâ temizlenmeyi bekliyor."),
+            new Color(1f, 0.45f, 0.4f), stats);
     }
 
     public void Restart()

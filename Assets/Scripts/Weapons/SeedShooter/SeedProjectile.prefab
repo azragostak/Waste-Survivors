@@ -113,8 +113,8 @@ MonoBehaviour:
   plantFramesPerSecond: 8
   plantBaseScale: 1.6
   fruitSprite: {fileID: 21300000, guid: ecbf3d46fcd83f446af60dce45c983c1, type: 2}
-  fruitDropChance: 0.005
+  fruitDropChance: 0.01
   fruitHealAmount: 25
   fruitBaseScale: 2.6
-  fruitCollectSound: {fileID: 8300000, guid: 89eb5515deabe5e439d2b50f1ad35d80, type: 3}
+  fruitCollectSound: {fileID: 8300000, guid: 6c4a82f1b90e4d37a518c2e749f03d62, type: 3}
 

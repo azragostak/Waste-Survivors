@@ -36,6 +36,22 @@ public class PassiveItemData : ScriptableObject
     public string GetEffectText(int level)
     {
         float value = GetTotalValue(level);
+        if (GameLanguage.IsTurkish)
+        {
+            return stat switch
+            {
+                PassiveStat.Damage => $"+%{value * 100f:0} hasar",
+                PassiveStat.CooldownReduction => $"+%{(1f / Mathf.Max(0.3f, 1f - value) - 1f) * 100f:0} saldırı hızı",
+                PassiveStat.Area => $"+%{value * 100f:0} silah alanı",
+                PassiveStat.MoveSpeed => $"+%{value * 100f:0} hareket hızı",
+                PassiveStat.MaxHealth => $"+{value:0} maksimum can",
+                PassiveStat.PickupRadius => $"+%{value * 100f:0} toplama alanı",
+                PassiveStat.CleanRadius => $"+%{value * 100f:0} temizleme alanı",
+                PassiveStat.DamageReduction => $"-%{Mathf.Min(value, PlayerHealth.MaxDamageReduction) * 100f:0} alınan hasar",
+                _ => "",
+            };
+        }
+
         return stat switch
         {
             PassiveStat.Damage => $"+{value * 100f:0}% damage",

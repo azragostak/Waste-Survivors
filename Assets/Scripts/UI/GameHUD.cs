@@ -59,9 +59,25 @@ public class GameHUD : MonoBehaviour
     private readonly List<Slot> weaponSlots = new();
     private readonly List<Slot> passiveSlots = new();
 
-    void OnEnable() => Enemy.Spawned += AttachEnemyBar;
+    void OnEnable()
+    {
+        Enemy.Spawned += AttachEnemyBar;
+        GameLanguage.Changed += RefreshAllLocalizedText;
+    }
 
-    void OnDisable() => Enemy.Spawned -= AttachEnemyBar;
+    void OnDisable()
+    {
+        Enemy.Spawned -= AttachEnemyBar;
+        GameLanguage.Changed -= RefreshAllLocalizedText;
+    }
+
+    private void RefreshAllLocalizedText()
+    {
+        if (experience != null) RefreshExperience();
+        RefreshWeapons();
+        RefreshPassives();
+        UpdateBossBar();
+    }
 
     void Start()
     {
@@ -152,7 +168,7 @@ public class GameHUD : MonoBehaviour
     {
         if (xpFill != null)
             xpFill.anchorMax = new Vector2(experience.Progress, 1f);
-        UIBuilder.SetText(levelText, $"LV {experience.Level}");
+        UIBuilder.SetText(levelText, $"{GameLanguage.Tr("LV", "SV")} {experience.Level}");
     }
 
     private void RefreshWeapons()
@@ -163,8 +179,8 @@ public class GameHUD : MonoBehaviour
             if (weapon == null)
                 ShowSlot(weaponSlots[i], null, "", "");
             else
-                ShowSlot(weaponSlots[i], UIBuilder.GetWeaponIcon(weapon.Data), weapon.Data.displayName,
-                    weapon.IsMaxLevel ? "MAX" : weapon.Level.ToString());
+                ShowSlot(weaponSlots[i], UIBuilder.GetWeaponIcon(weapon.Data), GameLanguage.WeaponName(weapon.Data),
+                    weapon.IsMaxLevel ? GameLanguage.Tr("MAX", "MAKS") : weapon.Level.ToString());
         }
     }
 
@@ -176,8 +192,8 @@ public class GameHUD : MonoBehaviour
             if (item == null)
                 ShowSlot(passiveSlots[i], null, "", "");
             else
-                ShowSlot(passiveSlots[i], item.Data.icon, item.Data.displayName,
-                    item.IsMaxLevel ? "MAX" : item.Level.ToString());
+                ShowSlot(passiveSlots[i], item.Data.icon, GameLanguage.ItemName(item.Data),
+                    item.IsMaxLevel ? GameLanguage.Tr("MAX", "MAKS") : item.Level.ToString());
         }
     }
 
@@ -226,7 +242,7 @@ public class GameHUD : MonoBehaviour
         {
             UIBuilder.Stretch(levelText.rectTransform);
             levelText.rectTransform.offsetMax = new Vector2(-14f, 0f);
-            levelText.text = "LV 1";
+            levelText.text = $"{GameLanguage.Tr("LV", "SV")} 1";
         }
 
         if (experience == null)

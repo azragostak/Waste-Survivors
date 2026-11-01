@@ -208,7 +208,7 @@ public class FruitPickup : MonoBehaviour
         SeedHitEffect.Spawn(player.transform.position, new Color(0.4f, 1f, 0.5f));
 
         if (collectSound != null)
-            SfxPlayer.Play(collectSound, 0.55f, pitchVariation: 0.03f, minInterval: 0.05f, maxVoices: 3, pitch: 1.25f);
+            SfxPlayer.Play(collectSound, 0.65f, pitchVariation: 0.05f, minInterval: 0.04f, maxVoices: 3, pitch: 1f);
 
         Despawn();
     }
