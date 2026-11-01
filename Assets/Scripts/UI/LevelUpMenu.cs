@@ -119,6 +119,8 @@ public class LevelUpMenu : MonoBehaviour
     private void OnLeveledUp(int level)
     {
         if (GameSession.Instance != null && GameSession.Instance.IsOver) return;
+        // Trailer (F4): seviye artar ama ekran açılmaz, oyun durmaz
+        if (GameSession.Instance != null && GameSession.Instance.SuppressLevelUps) return;
 
         pendingLevelUps++;
         if (!IsOpen) Show();

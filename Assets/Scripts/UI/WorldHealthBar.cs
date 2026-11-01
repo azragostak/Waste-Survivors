@@ -9,6 +9,12 @@ public class WorldHealthBar : MonoBehaviour
 
     private static Sprite pixelSprite;
 
+    // Trailer (F2): bütün can barları gizli
+    public static bool HideAll;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => HideAll = false;
+
     private Object owner;
     private IHealth health;
     private Transform fill;
@@ -70,7 +76,7 @@ public class WorldHealthBar : MonoBehaviour
         fill.localScale = scale;
         fill.localPosition = new Vector3(-width * 0.5f * (1f - ratio), 0f, 0f);
 
-        bool visible = !(hideWhenFull && ratio >= 1f) && ratio > 0f;
+        bool visible = !HideAll && !(hideWhenFull && ratio >= 1f) && ratio > 0f;
         backgroundRenderer.enabled = visible;
         fillRenderer.enabled = visible;
     }

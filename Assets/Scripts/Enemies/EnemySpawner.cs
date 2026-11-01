@@ -52,6 +52,7 @@ public class EnemySpawner : MonoBehaviour
     {
         if (player == null || timeline == null || timeline.phases.Count == 0) return;
         if (GameSession.Instance != null && GameSession.Instance.IsOver) return;
+        if (GameSession.Instance != null && GameSession.Instance.IsPeaceful) return;
 
         // Boss evresi: başka düşman doğmaz, boss bir kez gelir
         if (GameSession.Instance != null && GameSession.Instance.IsBossPhase)

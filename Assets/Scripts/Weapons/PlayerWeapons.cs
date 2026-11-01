@@ -53,6 +53,16 @@ public class PlayerWeapons : MonoBehaviour
 
     public Weapon GetWeapon(WeaponData data) => weapons.Find(w => w.Data == data);
 
+    // Trailer boş dünya modu: silahlar görünmez ve saldırmaz, tekrar açılınca kaldığı yerden devam eder
+    public void SetWeaponsActive(bool active)
+    {
+        foreach (var weapon in weapons)
+        {
+            if (weapon != null)
+                weapon.gameObject.SetActive(active);
+        }
+    }
+
     public bool HasEvolved(WeaponData baseData) => evolvedFrom.Contains(baseData);
 
     // Silah maksimum seviyede ve evrim için gereken pasif elde mi?

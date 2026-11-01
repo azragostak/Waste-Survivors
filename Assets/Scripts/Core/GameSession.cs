@@ -11,6 +11,10 @@ using UnityEngine.SceneManagement;
 //   F6 = boss'u hemen çağır (süreyi 10:00'a atlar)
 //   F7 = evrimi hazırla: elindeki (yoksa havuzdaki) evrimi olan ilk silahı maksimum seviyeye çıkarır,
 //        gereken pasifi verir ve bir level atlatır; level-up ekranında EVRİM kartı çıkar
+//   F1 = boş dünya (trailer): düşmanlar ve XP kaybolur, yeni düşman gelmez, silahlar gizlenir, süre durur
+//   F2 = HUD'u gizle/göster (trailer için temiz görüntü)
+//   F3 = ölümsüzlük aç/kapa
+//   F4 = level-up ekranı kapalı (trailer): seviye artar ama ekran açılmaz, oyun durmaz; silahları L ile yükselt
 //   R  = oyun bittiyse yeniden başlat
 public class GameSession : MonoBehaviour
 {
@@ -27,6 +31,10 @@ public class GameSession : MonoBehaviour
     public bool IsOver => IsFinished || IsGameOver;
     // Süre doldu, normal düşmanlar durdu, boss geldi (final boss ölünce başlar)
     public bool IsBossPhase { get; private set; }
+    // Trailer için boş dünya (F1): düşman doğmaz, silahlar gizli, süre durur
+    public bool IsPeaceful { get; private set; }
+    // Trailer için (F4): level-up ekranı açılmaz
+    public bool SuppressLevelUps { get; private set; }
 
     // Final başladığında (dünya temizlenirken)
     public event Action Finished;
@@ -83,7 +91,8 @@ public class GameSession : MonoBehaviour
     {
         if (!IsOver)
         {
-            Elapsed += Time.deltaTime;
+            if (!IsPeaceful)
+                Elapsed += Time.deltaTime;
             if (Elapsed >= RunDuration && !IsBossPhase)
                 StartBossPhase();
         }
@@ -102,13 +111,56 @@ public class GameSession : MonoBehaviour
                 DebugPrepareEvolution();
             else if (Input.GetKeyDown(KeyCode.F6))
                 StartBossPhase();
+            else if (Input.GetKeyDown(KeyCode.F1))
+                TogglePeaceful();
+            else if (Input.GetKeyDown(KeyCode.F2))
+            {
+                var hud = FindObjectOfType<GameHUD>();
+                if (hud != null) hud.ToggleHidden();
+            }
+            else if (Input.GetKeyDown(KeyCode.F4))
+            {
+                SuppressLevelUps = !SuppressLevelUps;
+                Debug.Log($"Level-up ekranı: {(SuppressLevelUps ? "kapalı" : "açık")}");
+            }
+            else if (Input.GetKeyDown(KeyCode.F3))
+            {
+                var health = FindObjectOfType<PlayerHealth>();
+                if (health != null)
+                {
+                    health.IsInvulnerable = !health.IsInvulnerable;
+                    Debug.Log($"Ölümsüzlük: {(health.IsInvulnerable ? "açık" : "kapalı")}");
+                }
+            }
         }
 
         if (IsOver && Input.GetKeyDown(KeyCode.R))
             Restart();
     }
 
-    private static void DebugPrepareEvolution()
+    private void TogglePeaceful()
+    {
+        IsPeaceful = !IsPeaceful;
+
+        if (IsPeaceful)
+        {
+            foreach (var enemy in new System.Collections.Generic.List<Enemy>(Enemy.Active))
+                enemy.Vanish();
+            for (int i = RecyclePickup.Active.Count - 1; i >= 0; i--)
+            {
+                if (RecyclePickup.Active[i] != null)
+                    Destroy(RecyclePickup.Active[i].gameObject);
+            }
+        }
+
+        var weapons = FindObjectOfType<PlayerWeapons>();
+        if (weapons != null)
+            weapons.SetWeaponsActive(!IsPeaceful);
+
+        Debug.Log($"Boş dünya: {(IsPeaceful ? "açık (düşman yok, silahlar gizli, süre durdu)" : "kapalı")}");
+    }
+
+    private void DebugPrepareEvolution()
     {
         var pool = Resources.Load<UpgradePool>(UpgradePool.ResourcePath);
         var weapons = FindObjectOfType<PlayerWeapons>();
@@ -148,7 +200,11 @@ public class GameSession : MonoBehaviour
             }
 
             Debug.Log($"Evrim testi: {data.displayName} maksimum seviyede, level atlatılıyor.");
+            // F4 açık olsa da evrim kartı gelsin
+            bool suppressed = SuppressLevelUps;
+            SuppressLevelUps = false;
             experience.AddExperience(experience.ExperienceToNextLevel - experience.Experience);
+            SuppressLevelUps = suppressed;
             return;
         }
 

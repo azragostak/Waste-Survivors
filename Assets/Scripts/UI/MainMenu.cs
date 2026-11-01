@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 // Ana menü ekranı:
 // - Tam ekran kapak görseli (anamenü.jpeg)
 // - Sağ üst köşede Ayarlar (Settings) butonu ve Dil Seçeneği (varsayılan İngilizce, Türkçe destekli)
+// - Ayarların altında Credits butonu: Resources/Credits.txt içeriğini gösteren pencere
 // - Alt-ortada "START GAME" / "OYUNA BAŞLA" butonu
 // - Tıklanınca açılan Görev Mektubu (Mission Letter) ve "CONTINUE" / "DEVAM ET" ile oyuna geçiş.
 public class MainMenu : MonoBehaviour
@@ -76,6 +77,17 @@ public class MainMenu : MonoBehaviour
     private TMP_FontAsset font;
     private GameObject startButtonRoot;
     private GameObject settingsButtonRoot;
+    private GameObject creditsButtonRoot;
+
+    // Credits penceresi elemanları
+    private GameObject creditsOverlay;
+    private CanvasGroup creditsCanvasGroup;
+    private RectTransform creditsCardRect;
+    private Coroutine creditsAnimCoroutine;
+    private TextMeshProUGUI creditsButtonText;
+    private TextMeshProUGUI creditsTitleText;
+    private TextMeshProUGUI creditsBodyText;
+    private TextMeshProUGUI closeCreditsButtonText;
 
     // Ayarlar (Settings) modal elemanları
     private GameObject settingsOverlay;
@@ -123,6 +135,7 @@ public class MainMenu : MonoBehaviour
 
     private bool IsLetterOpen => letterOverlay != null && letterOverlay.activeSelf;
     private bool IsSettingsOpen => settingsOverlay != null && settingsOverlay.activeSelf;
+    private bool IsCreditsOpen => creditsOverlay != null && creditsOverlay.activeSelf;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
@@ -166,10 +179,13 @@ public class MainMenu : MonoBehaviour
         EnsureBackground(canvasTransform);
         BuildStartButton(canvasTransform);
         BuildTopRightSettingsButton(canvasTransform);
+        BuildCreditsButton(canvasTransform);
         BuildSettingsModal(canvasTransform);
+        BuildCreditsModal(canvasTransform);
         BuildMissionLetter(canvasTransform);
 
         settingsOverlay.SetActive(false);
+        creditsOverlay.SetActive(false);
         letterOverlay.SetActive(false);
 
         RefreshLocalizedTexts();
@@ -185,6 +201,13 @@ public class MainMenu : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Escape))
                 CloseSettings();
+            return;
+        }
+
+        if (IsCreditsOpen)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+                CloseCredits();
             return;
         }
 
@@ -204,7 +227,7 @@ public class MainMenu : MonoBehaviour
 
     private void OpenSettings()
     {
-        if (IsSettingsOpen || IsLetterOpen || loadingScene) return;
+        if (IsSettingsOpen || IsLetterOpen || IsCreditsOpen || loadingScene) return;
 
         SfxPlayer.Play(generatedClickClip, volume: 0.30f, pitchVariation: 0.04f, minInterval: 0.02f);
 
@@ -242,6 +265,54 @@ public class MainMenu : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(null);
     }
 
+    private void OpenCredits()
+    {
+        if (IsCreditsOpen || IsSettingsOpen || IsLetterOpen || loadingScene) return;
+
+        SfxPlayer.Play(generatedClickClip, volume: 0.30f, pitchVariation: 0.04f, minInterval: 0.02f);
+
+        stateEnteredAt = Time.unscaledTime;
+        SetMainButtonsVisible(false);
+        RefreshCreditsText();
+
+        creditsOverlay.SetActive(true);
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(null);
+
+        if (creditsAnimCoroutine != null)
+            StopCoroutine(creditsAnimCoroutine);
+        creditsAnimCoroutine = StartCoroutine(AnimateModalOpen(creditsCanvasGroup, creditsCardRect, () => creditsAnimCoroutine = null));
+    }
+
+    private void CloseCredits()
+    {
+        if (!IsCreditsOpen || loadingScene) return;
+
+        SfxPlayer.Play(generatedClickClip, volume: 0.25f, pitchVariation: 0.04f, minInterval: 0.02f);
+
+        if (creditsAnimCoroutine != null)
+        {
+            StopCoroutine(creditsAnimCoroutine);
+            creditsAnimCoroutine = null;
+        }
+
+        creditsOverlay.SetActive(false);
+        SetMainButtonsVisible(true);
+
+        stateEnteredAt = Time.unscaledTime;
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(null);
+    }
+
+    // Metin her açılışta Resources/Credits.txt'den okunur; dosya güncellenince pencere de güncellenir
+    private void RefreshCreditsText()
+    {
+        var credits = Resources.Load<TextAsset>("Credits");
+        UIBuilder.SetText(creditsBodyText, credits != null
+            ? credits.text.Trim()
+            : GameLanguage.Tr("Credits file not found.", "Credits dosyası bulunamadı."));
+    }
+
     private void SelectLanguage(Language language)
     {
         SfxPlayer.Play(generatedClickClip, volume: 0.30f, pitchVariation: 0.03f, minInterval: 0.02f);
@@ -254,7 +325,7 @@ public class MainMenu : MonoBehaviour
 
     private void OpenMissionLetter()
     {
-        if (IsLetterOpen || IsSettingsOpen || loadingScene) return;
+        if (IsLetterOpen || IsSettingsOpen || IsCreditsOpen || loadingScene) return;
 
         SfxPlayer.Play(generatedPaperClip, volume: 0.32f, pitchVariation: 0.04f, minInterval: 0.02f);
 
@@ -294,6 +365,7 @@ public class MainMenu : MonoBehaviour
     {
         if (startButtonRoot != null) startButtonRoot.SetActive(visible);
         if (settingsButtonRoot != null) settingsButtonRoot.SetActive(visible);
+        if (creditsButtonRoot != null) creditsButtonRoot.SetActive(visible);
     }
 
     private void StartGame()
@@ -324,6 +396,10 @@ public class MainMenu : MonoBehaviour
         UIBuilder.SetText(musicCaptionText, tr ? "MÜZİK" : "MUSIC");
         UIBuilder.SetText(sfxCaptionText, tr ? "EFEKTLER" : "EFFECTS");
         UIBuilder.SetText(closeSettingsButtonText, tr ? "KAPAT" : "CLOSE");
+
+        UIBuilder.SetText(creditsButtonText, tr ? "EMEĞİ GEÇENLER" : "CREDITS");
+        UIBuilder.SetText(creditsTitleText, tr ? "EMEĞİ GEÇENLER" : "CREDITS");
+        UIBuilder.SetText(closeCreditsButtonText, tr ? "KAPAT" : "CLOSE");
 
         UIBuilder.SetText(stampTextComp, tr ? "RESMİ GÖREV MEKTUBU" : letterStamp);
         UIBuilder.SetText(headingTextComp, tr ? "ORMANI TEMİZLE" : letterHeading);
@@ -535,6 +611,83 @@ public class MainMenu : MonoBehaviour
             settingsButtonText.rectTransform.offsetMin = new Vector2(48f, 0f);
             settingsButtonText.rectTransform.offsetMax = new Vector2(-10f, 0f);
         }
+    }
+
+    // Ayarlar butonunun hemen altında, aynı görünümde
+    private void BuildCreditsButton(Transform canvasTransform)
+    {
+        var root = UIBuilder.CreateRect(canvasTransform, "CreditsButtonGroup");
+        root.anchorMin = root.anchorMax = new Vector2(1f, 1f);
+        root.pivot = new Vector2(1f, 1f);
+        root.sizeDelta = new Vector2(214f, 56f);
+        root.anchoredPosition = new Vector2(-28f, -96f);
+        creditsButtonRoot = root.gameObject;
+
+        var shadow = UIBuilder.CreateImage(root, "Shadow", new Color(0f, 0f, 0f, 0.50f), raycastTarget: false);
+        PlaceCentered(shadow.rectTransform, new Vector2(0f, -4f), new Vector2(210f, 54f));
+
+        creditsButtonText = CreateFramedButton(root, "CreditsButton", "CREDITS", SettingsButtonAccent, SettingsButtonFill,
+            Vector2.zero, new Vector2(210f, 54f), 20f, OpenCredits);
+        // "EMEĞİ GEÇENLER" butona sığsın
+        if (creditsButtonText != null)
+        {
+            creditsButtonText.enableAutoSizing = true;
+            creditsButtonText.fontSizeMin = 14f;
+            creditsButtonText.fontSizeMax = 20f;
+        }
+    }
+
+    // Ayarlar penceresiyle aynı tasarım: başlık, Credits.txt metni ve Kapat butonu
+    private void BuildCreditsModal(Transform canvasTransform)
+    {
+        var backdrop = UIBuilder.CreateImage(canvasTransform, "CreditsOverlay",
+            new Color(0.02f, 0.04f, 0.03f, 0.78f), raycastTarget: true);
+        UIBuilder.Stretch(backdrop.rectTransform);
+        creditsOverlay = backdrop.gameObject;
+        creditsCanvasGroup = creditsOverlay.AddComponent<CanvasGroup>();
+
+        var cardSize = new Vector2(1000f, 760f);
+        var cardRoot = UIBuilder.CreateRect(backdrop.transform, "CreditsCard");
+        PlaceCentered(cardRoot, Vector2.zero, cardSize);
+        creditsCardRect = cardRoot;
+
+        var shadow = UIBuilder.CreateImage(cardRoot, "Shadow", new Color(0f, 0f, 0f, 0.62f), raycastTarget: false);
+        PlaceCentered(shadow.rectTransform, new Vector2(8f, -10f), cardSize);
+
+        var border = UIBuilder.CreateImage(cardRoot, "OuterBorder", StartButtonAccent, raycastTarget: true);
+        UIBuilder.Stretch(border.rectTransform);
+
+        var inner = UIBuilder.CreateImage(border.transform, "PanelFill", new Color(0.08f, 0.10f, 0.12f, 0.97f), raycastTarget: false);
+        UIBuilder.Stretch(inner.rectTransform, 4f);
+        var content = inner.transform;
+
+        creditsTitleText = UIBuilder.CreateText(content, "Title", font, 44f, TextAlignmentOptions.Center, bold: true);
+        if (creditsTitleText != null)
+        {
+            creditsTitleText.color = ModalTitleColor;
+            PlaceCentered(creditsTitleText.rectTransform, new Vector2(0f, 330f), new Vector2(900f, 54f));
+        }
+
+        CreateDarkDivider(content, "TopDivider", 290f, 900f);
+
+        // Uzun bağlantılar sığsın diye yazı boyutu kendini küçültebilir
+        creditsBodyText = UIBuilder.CreateText(content, "Body", font, 22f, TextAlignmentOptions.Top, bold: false);
+        if (creditsBodyText != null)
+        {
+            creditsBodyText.color = new Color(0.88f, 0.92f, 0.89f, 1f);
+            creditsBodyText.outlineWidth = 0f;
+            creditsBodyText.enableWordWrapping = true;
+            creditsBodyText.enableAutoSizing = true;
+            creditsBodyText.fontSizeMin = 12f;
+            creditsBodyText.fontSizeMax = 22f;
+            creditsBodyText.lineSpacing = 4f;
+            PlaceCentered(creditsBodyText.rectTransform, new Vector2(0f, -8f), new Vector2(900f, 560f));
+        }
+
+        CreateDarkDivider(content, "BottomDivider", -298f, 900f);
+
+        closeCreditsButtonText = CreateFramedButton(content, "CloseButton", "CLOSE", SettingsButtonAccent,
+            new Color(0.11f, 0.13f, 0.16f, 0.96f), new Vector2(0f, -334f), new Vector2(236f, 54f), 25f, CloseCredits);
     }
 
     private void BuildSettingsModal(Transform canvasTransform)

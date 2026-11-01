@@ -51,6 +51,16 @@ public class GameHUD : MonoBehaviour
     private TextMeshProUGUI levelText;
     private TextMeshProUGUI timerText;
     private Transform hudCanvas;
+    private RectTransform hudRoot;
+
+    // Trailer (F2): ekran HUD'u ve düşman/oyuncu can barları gizlenir; level-up ekranı ve hasar sayıları kalır
+    public void ToggleHidden()
+    {
+        if (hudRoot == null) return;
+        bool hide = hudRoot.gameObject.activeSelf;
+        hudRoot.gameObject.SetActive(!hide);
+        WorldHealthBar.HideAll = hide;
+    }
     private RectTransform bossBar;
     private RectTransform bossFill;
     private TextMeshProUGUI bossName;
@@ -106,9 +116,12 @@ public class GameHUD : MonoBehaviour
         }
 
         var canvas = CreateCanvas();
-        hudCanvas = canvas;
-        CreateXpBar(canvas);
-        CreateSlots(canvas);
+        // XP barı, süre, slotlar ve boss barı tek kökte: F2 ile hepsi birden gizlenebilsin
+        hudRoot = UIBuilder.CreateRect(canvas, "HudRoot");
+        UIBuilder.Stretch(hudRoot);
+        hudCanvas = hudRoot;
+        CreateXpBar(hudRoot);
+        CreateSlots(hudRoot);
 
         if (experience != null)
         {
