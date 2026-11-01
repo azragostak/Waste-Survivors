@@ -12,6 +12,9 @@ public class PressDrop : MonoBehaviour
     [Tooltip("Pres tabanının hedef merkezine tam oturması için dikey görsel ofset")]
     [SerializeField] private float impactYOffset = 0.25f;
 
+    [Tooltip("Pres görselinin 1x boyutta kabul edildiği referans alan yarıçapı (alan büyüdükçe pres de büyür)")]
+    [SerializeField, Min(0.1f)] private float referenceArea = 1.3f;
+
     [Header("Ezme ve Gölge Efektleri")]
     [Tooltip("Opsiyonel: kendi çarpma efekt prefab'ın. Boşsa kodla çizilen şok dalgası kullanılır.")]
     [SerializeField] private GameObject impactVisualPrefab;
@@ -59,10 +62,14 @@ public class PressDrop : MonoBehaviour
 
         CreateShadow(impactPoint);
 
+        float areaFactor = Mathf.Max(0.75f, stats.area / Mathf.Max(0.1f, referenceArea));
+        Vector3 scaledBase = baseScale * areaFactor;
+        float scaledImpactYOffset = impactYOffset * areaFactor;
+
         // 1. Yerçekimi hissiyle hızlanarak düşüş (quadratic ease-in)
         float fallTime = GetEstimatedFallTime(stats.speed);
-        Vector2 startPos = impactPoint + Vector2.up * (impactYOffset + dropHeight);
-        Vector2 endPos = impactPoint + Vector2.up * impactYOffset;
+        Vector2 startPos = impactPoint + Vector2.up * (scaledImpactYOffset + dropHeight);
+        Vector2 endPos = impactPoint + Vector2.up * scaledImpactYOffset;
 
         for (float t = 0f; t < fallTime; t += Time.deltaTime)
         {
@@ -73,9 +80,9 @@ public class PressDrop : MonoBehaviour
 
             // Hızlandıkça hafif dikey uzama (stretch)
             transform.localScale = new Vector3(
-                baseScale.x * Mathf.Lerp(1f, 0.9f, fallCurve),
-                baseScale.y * Mathf.Lerp(1f, 1.15f, fallCurve),
-                baseScale.z
+                scaledBase.x * Mathf.Lerp(1f, 0.9f, fallCurve),
+                scaledBase.y * Mathf.Lerp(1f, 1.15f, fallCurve),
+                scaledBase.z
             );
 
             UpdateShadow(fallCurve);
@@ -98,14 +105,14 @@ public class PressDrop : MonoBehaviour
             {
                 float s = t / squashDuration;
                 transform.localScale = new Vector3(
-                    baseScale.x * Mathf.Lerp(1.28f, 1f, s),
-                    baseScale.y * Mathf.Lerp(0.72f, 1f, s),
-                    baseScale.z
+                    scaledBase.x * Mathf.Lerp(1.28f, 1f, s),
+                    scaledBase.y * Mathf.Lerp(0.72f, 1f, s),
+                    scaledBase.z
                 );
             }
             else
             {
-                transform.localScale = baseScale;
+                transform.localScale = scaledBase;
             }
 
             // Son %45'lik sürede saydamlaşarak kaybolma

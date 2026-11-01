@@ -22,6 +22,8 @@ public class GroundCleaner : MonoBehaviour
     public int CleanedTiles { get; private set; }
     public event Action<Vector3Int> TileCleaned;
 
+    public bool IsCellFading(Vector3Int cell) => fading.ContainsKey(cell);
+
     // Level-up ödülü olarak büyütülebilir
     public float CleanRadius
     {
@@ -44,7 +46,13 @@ public class GroundCleaner : MonoBehaviour
         }
 
         if (dirtyTilemap == null)
+        {
             Debug.LogWarning("GroundCleaner: 'Ground' tilemap'i bulunamadı. Tools > Waste Survivors > Zemin Oluştur ile kurabilirsin.", this);
+            return;
+        }
+
+        // Haritanın hiç bitmemesi için sonsuz zemin döngüsünü otomatik devreye al
+        InfiniteGroundLooper.EnsureAttached(dirtyTilemap, this);
     }
 
     void Update()
@@ -70,7 +78,10 @@ public class GroundCleaner : MonoBehaviour
             for (int x = -rangeX; x <= rangeX; x++)
             {
                 var cell = new Vector3Int(center.x + x, center.y + y, center.z);
-                if (fading.ContainsKey(cell) || !dirtyTilemap.HasTile(cell)) continue;
+                if (fading.ContainsKey(cell)) continue;
+
+                TileBase tile = dirtyTilemap.GetTile(cell);
+                if (tile == null || tile.name == "Ground_2") continue;
 
                 Vector2 cellCenter = dirtyTilemap.GetCellCenterWorld(cell);
                 if ((cellCenter - position).sqrMagnitude > radiusSqr) continue;

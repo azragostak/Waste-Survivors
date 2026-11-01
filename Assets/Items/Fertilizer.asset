@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 138f368a519b4dcaa8aeb7ca82564185, type: 3}
+  m_Name: Fertilizer
+  m_EditorClassIdentifier: 
+  displayName: "G\u00FCbre"
+  description: "T\u00FCm silahlar\u0131n\u0131n etki ve ezme alan\u0131n\u0131 b\u00FCy\u00FCt\u00FCr."
+  icon: {fileID: 21300000, guid: 22090ef527919bb48b767b7edd602d15, type: 3}
+  stat: 2
+  valuePerLevel: 0.15
+  maxLevel: 5
+

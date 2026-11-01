@@ -59,6 +59,9 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
         rb.gravityScale = 0f;
         rb.freezeRotation = true;
 
+        if (TryGetComponent<Collider2D>(out var col) && col.sharedMaterial == null)
+            col.sharedMaterial = PlayerController.FrictionlessMaterial;
+
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         if (spriteRenderer != null)
             baseColor = spriteRenderer.color;

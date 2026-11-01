@@ -45,7 +45,7 @@ public static class GroundTilemapBuilder
             Debug.LogWarning($"Zemin: {CleanTilePath} bulunamadı, sadece kirli zemin kuruluyor.");
 
         var dirtyTiles = dirtySprites.Select((sprite, i) => GetOrCreateTile(sprite, $"Ground_{i}")).ToArray();
-        var cleanTiles = cleanSprites.Select((sprite, i) => GetOrCreateTile(sprite, $"GroundClean_{i}")).ToArray();
+        var cleanTiles = cleanSprites.Select((sprite, i) => GetOrCreateTile(i == 2 && dirtySprites.Length > 2 ? dirtySprites[2] : sprite, $"GroundClean_{i}")).ToArray();
         AssetDatabase.SaveAssets();
 
         var grid = GetOrCreateGrid();
