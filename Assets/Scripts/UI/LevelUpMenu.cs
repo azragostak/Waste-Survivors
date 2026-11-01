@@ -126,7 +126,7 @@ public class LevelUpMenu : MonoBehaviour
 
     void Update()
     {
-        if (!IsOpen || Time.unscaledTime - shownAt < InputDelay) return;
+        if (!IsOpen || PauseMenu.IsPaused || Time.unscaledTime - shownAt < InputDelay) return;
 
         for (int i = 0; i < currentOptions.Count; i++)
         {

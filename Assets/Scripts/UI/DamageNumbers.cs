@@ -25,10 +25,17 @@ public class DamageNumbers : MonoBehaviour
         public float scale;
     }
 
+    public static DamageNumbers Instance { get; private set; }
+
     private readonly List<Number> active = new();
     private readonly Stack<Number> pool = new();
     private TMP_FontAsset font;
     private Material outlineMaterial;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => Instance = null;
+
+    void Awake() => Instance = this;
 
     public void Initialize(TMP_FontAsset fontAsset)
     {
@@ -63,6 +70,21 @@ public class DamageNumbers : MonoBehaviour
         number.text.text = Mathf.Max(1, Mathf.RoundToInt(amount)).ToString();
         number.text.color = bigHit ? bigHitColor : normalColor;
         number.scale = bigHit ? 1.3f : 1f;
+        number.start = position;
+        number.age = 0f;
+        number.text.transform.position = position;
+        number.text.gameObject.SetActive(true);
+        active.Add(number);
+    }
+
+    public void ShowHeal(Vector3 position, float amount)
+    {
+        if (font == null || amount <= 0f) return;
+
+        var number = pool.Count > 0 ? pool.Pop() : CreateNumber();
+        number.text.text = $"+{Mathf.Max(1, Mathf.RoundToInt(amount))}";
+        number.text.color = new Color(0.35f, 1f, 0.45f);
+        number.scale = 1.2f;
         number.start = position;
         number.age = 0f;
         number.text.transform.position = position;
@@ -119,6 +141,7 @@ public class DamageNumbers : MonoBehaviour
 
     void OnDestroy()
     {
+        if (Instance == this) Instance = null;
         if (outlineMaterial != null) Destroy(outlineMaterial);
     }
 }

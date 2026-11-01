@@ -161,13 +161,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7edc87e40c894d249e18b0396dc1c2b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 15
+  maxHealth: 75
   healthScaling: 0.8
   moveSpeed: 1.4
   maxSpeed: 1.6
   hitFlashColor: {r: 1, g: 0.4, b: 0.4, a: 1}
   hitFlashDuration: 0.1
-  contactDamage: 10
+  contactDamage: 20
   recycleDrop: {fileID: 300100004, guid: 9db8e9b96048460c9920bae2df3c630c, type: 3}
   experienceReward: 2
   horizontalSpeed: 1.4

@@ -20,6 +20,8 @@ public static class SfxPlayer
         lastPlayed.Clear();
     }
 
+    public static bool IsSfxSource(AudioSource source) => voices != null && System.Array.IndexOf(voices, source) >= 0;
+
     public static void Play(AudioClip clip, float volume = 1f, float pitchVariation = 0.08f,
         float minInterval = 0.05f, int maxVoices = 4, float pitch = 1f)
     {

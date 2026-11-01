@@ -78,7 +78,7 @@ public class GameSession : MonoBehaviour
                 TriggerFinale();
         }
 
-        if (DebugKeysEnabled && !IsOver)
+        if (DebugKeysEnabled && !IsOver && !PauseMenu.IsPaused)
         {
             if (Input.GetKeyDown(KeyCode.F9))
                 TriggerFinale();
@@ -147,6 +147,7 @@ public class GameSession : MonoBehaviour
 
         IsGameOver = true;
         GameOver?.Invoke();
+        Time.timeScale = 0f;
 
         var experience = FindObjectOfType<PlayerExperience>();
         string stats = $"Süre {FormatTime(Elapsed)}" +

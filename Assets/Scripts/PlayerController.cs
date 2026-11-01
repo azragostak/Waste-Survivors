@@ -61,6 +61,8 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (Time.deltaTime <= 0f) return;
+
         float x = Input.GetAxisRaw("Horizontal");
         float y = Input.GetAxisRaw("Vertical");
         moveInput = new Vector2(x, y);

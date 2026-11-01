@@ -21,7 +21,7 @@ MonoBehaviour:
   levels:
   - upgradeDescription: "Hidrolik Pres + M\u0131knat\u0131s evrimi"
     stats:
-      damage: 55
+      damage: 165
       cooldown: 1.5
       area: 2.6
       amount: 4

@@ -21,7 +21,7 @@ MonoBehaviour:
   levels:
   - upgradeDescription: "D\xFC\u015Fmanlar\u0131n tepesine g\xF6kten hidrolik pres d\xFC\u015F\xFCrerek ezer."
     stats:
-      damage: 11
+      damage: 33
       cooldown: 3.2
       area: 1.3
       amount: 1
@@ -31,7 +31,7 @@ MonoBehaviour:
       range: 7.5
   - upgradeDescription: "+1 hidrolik pres"
     stats:
-      damage: 11
+      damage: 33
       cooldown: 3.2
       area: 1.3
       amount: 2
@@ -39,9 +39,9 @@ MonoBehaviour:
       speed: 18
       hitInterval: 0
       range: 7.5
-  - upgradeDescription: "Hasar +5, ezme alan\u0131 +%25"
+  - upgradeDescription: "Hasar +15, ezme alan\u0131 +%25"
     stats:
-      damage: 16
+      damage: 48
       cooldown: 3.2
       area: 1.6
       amount: 2
@@ -51,7 +51,7 @@ MonoBehaviour:
       range: 7.5
   - upgradeDescription: "Daha s\u0131k ve daha h\u0131zl\u0131 d\xFC\u015Fer"
     stats:
-      damage: 16
+      damage: 48
       cooldown: 2.5
       area: 1.6
       amount: 2
@@ -59,9 +59,9 @@ MonoBehaviour:
       speed: 22
       hitInterval: 0
       range: 8
-  - upgradeDescription: "+1 pres, hasar +6, daha geni\u015F ezme alan\u0131"
+  - upgradeDescription: "+1 pres, hasar +18, daha geni\u015F ezme alan\u0131"
     stats:
-      damage: 22
+      damage: 66
       cooldown: 2.2
       area: 1.95
       amount: 3
@@ -69,9 +69,9 @@ MonoBehaviour:
       speed: 24
       hitInterval: 0
       range: 8.5
-  - upgradeDescription: "Hasar +8"
+  - upgradeDescription: "Hasar +24"
     stats:
-      damage: 30
+      damage: 90
       cooldown: 2.2
       area: 1.95
       amount: 3
@@ -81,7 +81,7 @@ MonoBehaviour:
       range: 8.5
   - upgradeDescription: "Ezme alan\u0131 +%15"
     stats:
-      damage: 30
+      damage: 90
       cooldown: 2.2
       area: 2.25
       amount: 3
@@ -91,7 +91,7 @@ MonoBehaviour:
       range: 8.5
   - upgradeDescription: "Daha s\u0131k d\u00FC\u015Fer"
     stats:
-      damage: 30
+      damage: 90
       cooldown: 1.9
       area: 2.25
       amount: 3
@@ -101,7 +101,7 @@ MonoBehaviour:
       range: 8.5
   - upgradeDescription: "+1 pres"
     stats:
-      damage: 30
+      damage: 90
       cooldown: 1.9
       area: 2.25
       amount: 4
@@ -109,9 +109,9 @@ MonoBehaviour:
       speed: 24
       hitInterval: 0
       range: 8.5
-  - upgradeDescription: "MAX: Hasar +12, daha geni\u015F alan, daha h\u0131zl\u0131 ve s\u0131k d\u00FC\u015Fer"
+  - upgradeDescription: "MAX: Hasar +36, daha geni\u015F alan, daha h\u0131zl\u0131 ve s\u0131k d\u00FC\u015Fer"
     stats:
-      damage: 42
+      damage: 126
       cooldown: 1.7
       area: 2.5
       amount: 4

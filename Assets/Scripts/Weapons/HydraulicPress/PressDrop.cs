@@ -25,7 +25,7 @@ public class PressDrop : MonoBehaviour
     [Header("Ses")]
     [Tooltip("Pres yere çarptığında")]
     [SerializeField] private AudioClip impactSound;
-    [SerializeField, Range(0f, 1f)] private float impactVolume = 0.8f;
+    [SerializeField, Range(0f, 1f)] private float impactVolume = 0.28f;
 
     private static Sprite cachedShadowSprite;
 

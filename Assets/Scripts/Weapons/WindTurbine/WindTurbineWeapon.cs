@@ -24,9 +24,16 @@ public class WindTurbineWeapon : Weapon
     [SerializeField] private int sortingOrder = 3;
 
     [Header("Ses")]
-    [Tooltip("Kanat düşmana çarptığında. Kalabalıkta saniyede onlarca vuruş olur; sık tekrarı sınırlanır.")]
+    [Tooltip("Opsiyonel: düz dönerken çalacak rüzgar sesi (boşsa yumuşak rüzgar uğultusu otomatik üretilir)")]
+    [SerializeField] private AudioClip spinSound;
+    [Tooltip("Düz dönerken duyulan rüzgar sesi seviyesi")]
+    [SerializeField, Range(0f, 1f)] private float spinVolume = 0.16f;
+    [Tooltip("Kanat düşmana çarptığında çalacak kesme/vuruş sesi")]
     [SerializeField] private AudioClip hitSound;
-    [SerializeField, Range(0f, 1f)] private float hitVolume = 0.35f;
+    [Tooltip("Düşmana çarptığında duyulan vuruş sesi seviyesi")]
+    [SerializeField, Range(0f, 1f)] private float hitVolume = 0.18f;
+
+    private static AudioClip generatedWindClip;
 
     private const float CleanupInterval = 2f;
 
@@ -38,6 +45,7 @@ public class WindTurbineWeapon : Weapon
     private Transform rotor;
     private Sprite sprite;
     private float angle;
+    private float spinSoundAccum;
     private float cleanupTimer;
 
     protected override void OnInitialized()
@@ -53,14 +61,16 @@ public class WindTurbineWeapon : Weapon
     // Base Update cooldown'a göre saldırır; türbin ise her karede döner ve çarpışma kontrol eder
     protected override void Update()
     {
-        if (Data == null || rotor == null) return;
+        if (Data == null || rotor == null || Time.deltaTime <= 0f) return;
 
         var stats = Stats;
         int count = Mathf.Max(1, stats.amount);
         SyncBladeCount(count);
 
         // Saat yönünde döner
-        angle = (angle - stats.speed * AttackSpeedMultiplier * Time.deltaTime) % 360f;
+        float deltaAngle = stats.speed * AttackSpeedMultiplier * Time.deltaTime;
+        angle = (angle - deltaAngle) % 360f;
+        spinSoundAccum += deltaAngle;
         rotor.position = Owner.position + (Vector3)centerOffset;
 
         float scale = Mathf.Max(0.1f, stats.area);
@@ -78,10 +88,17 @@ public class WindTurbineWeapon : Weapon
         }
 
         HitEnemies(stats, count, length, halfWidth);
+        if (spinVolume > 0f && spinSoundAccum >= 180f)
+        {
+            spinSoundAccum %= 180f;
+            AudioClip windClip = spinSound != null ? spinSound : GetOrCreateWindWhooshClip();
+            float speedPitch = Mathf.Clamp((stats.speed * AttackSpeedMultiplier) / 280f, 0.85f, 1.25f);
+            SfxPlayer.Play(windClip, spinVolume, pitchVariation: 0.04f, minInterval: 0.34f, maxVoices: 2, pitch: speedPitch);
+        }
         CleanupDeadEnemies();
     }
 
-    private void HitEnemies(WeaponStats stats, int count, float length, float halfWidth)
+    private bool HitEnemies(WeaponStats stats, int count, float length, float halfWidth)
     {
         Vector2 center = rotor.position;
         float outerRadius = innerRadius + length;
@@ -109,7 +126,8 @@ public class WindTurbineWeapon : Weapon
         }
 
         if (hitAny)
-            SfxPlayer.Play(hitSound, hitVolume, minInterval: 0.12f, maxVoices: 3);
+            SfxPlayer.Play(hitSound, hitVolume, minInterval: 0.16f, maxVoices: 2, pitch: 1.06f);
+        return hitAny;
     }
 
     // Ölen düşmanlar sözlükte birikmesin
@@ -163,6 +181,48 @@ public class WindTurbineWeapon : Weapon
         Vector2 ab = b - a;
         float t = Mathf.Clamp01(Vector2.Dot(point - a, ab) / Mathf.Max(0.0001f, ab.sqrMagnitude));
         return Vector2.Distance(point, a + ab * t);
+    }
+
+    // Düz dönerken vurma sesi yerine sadece yumuşak hava/rüzgar savrulması duyulsun
+    private static AudioClip GetOrCreateWindWhooshClip()
+    {
+        if (generatedWindClip != null) return generatedWindClip;
+
+        const int sampleRate = 44100;
+        const float duration = 0.36f;
+        int sampleCount = Mathf.RoundToInt(sampleRate * duration);
+        var samples = new float[sampleCount];
+
+        var rng = new System.Random(31031);
+        float lp1 = 0f, lp2 = 0f, subLp = 0f;
+        float alphaSub = 1f - Mathf.Exp(-2f * Mathf.PI * 95f / sampleRate);
+        float peak = 0.001f;
+
+        for (int i = 0; i < sampleCount; i++)
+        {
+            float t = (float)i / (sampleCount - 1);
+            float bell = 0.5f * (1f - Mathf.Cos(2f * Mathf.PI * t));
+            float cutoff = Mathf.Lerp(210f, 520f, bell);
+            float alpha = 1f - Mathf.Exp(-2f * Mathf.PI * cutoff / sampleRate);
+
+            float white = (float)(rng.NextDouble() * 2.0 - 1.0);
+            lp1 += alpha * (white - lp1);
+            lp2 += alpha * (lp1 - lp2);
+            subLp += alphaSub * (lp2 - subLp);
+
+            float air = (lp2 - subLp) * bell;
+            samples[i] = air;
+            float abs = Mathf.Abs(air);
+            if (abs > peak) peak = abs;
+        }
+
+        float norm = 0.65f / peak;
+        for (int i = 0; i < sampleCount; i++)
+            samples[i] *= norm;
+
+        generatedWindClip = AudioClip.Create("TurbineWindWhoosh", sampleCount, 1, sampleRate, false);
+        generatedWindClip.SetData(samples, 0);
+        return generatedWindClip;
     }
 
     // Saldırı Update içinde yapılıyor

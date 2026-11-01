@@ -50,4 +50,6 @@ MonoBehaviour:
   enemyRadius: 0.25
   sortingOrder: 3
   hitSound: {fileID: 8300000, guid: 27c1cfe7c7a15304ab457bb1fe08538c, type: 3}
-  hitVolume: 0.35
+  spinSound: {fileID: 0}
+  spinVolume: 0.16
+  hitVolume: 0.18

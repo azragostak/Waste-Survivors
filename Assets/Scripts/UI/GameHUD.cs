@@ -121,7 +121,13 @@ public class GameHUD : MonoBehaviour
             gameObject.AddComponent<DamageNumbers>().Initialize(font);
 
         // En son kurulsun ki HUD'un üstünde çizilsin
-        gameObject.AddComponent<LevelUpMenu>().Initialize(canvas, font, upgradePool, experience, weapons, passives, playerHealth);
+        var levelUpMenu = gameObject.AddComponent<LevelUpMenu>();
+        levelUpMenu.Initialize(canvas, font, upgradePool, experience, weapons, passives, playerHealth);
+
+        var pauseMenu = GetComponent<PauseMenu>();
+        if (pauseMenu == null)
+            pauseMenu = gameObject.AddComponent<PauseMenu>();
+        pauseMenu.Initialize(font, levelUpMenu, experience);
     }
 
     private void AttachEnemyBar(Enemy enemy)

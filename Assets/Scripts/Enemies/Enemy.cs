@@ -16,7 +16,7 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
     // Öldürülen her düşman (kaybolanlar sayılmaz); skor için
     public static event Action<Enemy> Killed;
 
-    [SerializeField] protected float maxHealth = 10f;
+    [SerializeField] protected float maxHealth = 50f;
     [Tooltip("Zamanla artan düşman canından ne kadar etkilensin (0 = can hep sabit, 1 = tam)")]
     [SerializeField, Range(0f, 1f)] protected float healthScaling = 1f;
     [SerializeField] protected float moveSpeed = 1.5f;
@@ -25,7 +25,7 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
     [SerializeField] protected Color hitFlashColor = new Color(1f, 0.4f, 0.4f);
     [SerializeField] protected float hitFlashDuration = 0.1f;
     [Tooltip("Oyuncuya değince verdiği hasar")]
-    [SerializeField, Min(0f)] protected float contactDamage = 5f;
+    [SerializeField, Min(0f)] protected float contactDamage = 10f;
 
     [Tooltip("Ölünce düşen geri dönüşüm parçası (XP)")]
     [SerializeField] protected RecyclePickup recycleDrop;
@@ -35,9 +35,11 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
     public event Action<Enemy> Died;
 
     public bool IsAlive => health > 0f && !vanishing;
-    public float ContactDamage => contactDamage * damageMultiplier;
+    public float ContactDamage => Mathf.Max(1f, Mathf.Round(contactDamage * damageMultiplier));
     public float CurrentHealth => Mathf.Max(0f, health);
-    public float MaxHealth => maxHealth * healthMultiplier;
+    public float MaxHealth => RoundToFive(maxHealth * healthMultiplier);
+
+    private static float RoundToFive(float value) => Mathf.Max(5f, Mathf.Round(value / 5f) * 5f);
 
     protected float health;
     // Zaman ilerledikçe spawner tarafından artırılır (DifficultyTimeline)
@@ -75,7 +77,7 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
 
     protected virtual void OnEnable()
     {
-        health = maxHealth;
+        health = MaxHealth;
         active.Add(this);
         Spawned?.Invoke(this);
     }

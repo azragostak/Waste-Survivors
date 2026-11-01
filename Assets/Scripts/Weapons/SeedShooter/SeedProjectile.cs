@@ -26,6 +26,18 @@ public class SeedProjectile : MonoBehaviour
     [Tooltip("Ekilen bitkinin sahne ölçeği")]
     [SerializeField, Min(0.1f)] private float plantBaseScale = 1.6f;
 
+    [Header("Meyve Düşürme (Can Yenileme)")]
+    [Tooltip("Tohumla öldürülen düşmandan düşecek meyve görseli (meyve.asset)")]
+    [SerializeField] private Sprite fruitSprite;
+    [Tooltip("Tohumun son vuruşu yaptığı düşmandan meyve düşme olasılığı (0.005 = %0.5)")]
+    [SerializeField, Range(0f, 1f)] private float fruitDropChance = 0.005f;
+    [Tooltip("Toplanan meyvenin yenilediği can miktarı")]
+    [SerializeField, Min(1f)] private float fruitHealAmount = 25f;
+    [Tooltip("Düşen meyvenin sahne ölçeği")]
+    [SerializeField, Min(0.2f)] private float fruitBaseScale = 2.6f;
+    [Tooltip("Meyve toplandığında çalacak ses")]
+    [SerializeField] private AudioClip fruitCollectSound;
+
     // Final ekimi için (oyuncu tohum silahını hiç almamış olsa da bitki görselleri bulunabilsin)
     public Texture2D[] PlantSheets => plantSheets;
     public float PlantFramesPerSecond => plantFramesPerSecond;
@@ -92,6 +104,7 @@ public class SeedProjectile : MonoBehaviour
     void Update()
     {
         float dt = Time.deltaTime;
+        if (dt <= 0f) return;
         remainingLife -= dt;
         if (remainingLife <= 0f)
         {
@@ -106,8 +119,14 @@ public class SeedProjectile : MonoBehaviour
         Enemy hitEnemy = FindHitEnemy(startPos, endPos, out Vector2 hitPoint);
         if (hitEnemy != null)
         {
+            Vector2 enemyPos = hitEnemy.transform.position;
+            bool wasAlive = hitEnemy.IsAlive;
             SeedPlantedSprout.MarkEnemy(hitEnemy, plantSheets, plantFramesPerSecond, plantBaseScale);
             hitEnemy.TakeDamage(damage);
+            if (wasAlive && !hitEnemy.IsAlive && fruitSprite != null && Random.value < fruitDropChance)
+            {
+                FruitPickup.Spawn(enemyPos, fruitSprite, fruitHealAmount, fruitBaseScale, fruitCollectSound);
+            }
             SeedHitEffect.Spawn(hitPoint, hitSparkColor);
             Despawn();
             return;

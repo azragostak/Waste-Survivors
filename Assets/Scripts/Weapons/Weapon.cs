@@ -17,7 +17,7 @@ public abstract class Weapon : MonoBehaviour
         get
         {
             var stats = Data.GetStats(Level);
-            stats.damage *= 1f + PlayerPassives.GetBonus(Owner, PassiveStat.Damage);
+            stats.damage = Mathf.Max(1f, Mathf.Round(stats.damage * (1f + PlayerPassives.GetBonus(Owner, PassiveStat.Damage))));
             stats.area *= 1f + PlayerPassives.GetBonus(Owner, PassiveStat.Area);
             // Saldırı hızı: bekleme süresi ve aynı düşmana tekrar vurma aralığı birlikte kısalır
             float attackInterval = 1f / AttackSpeedMultiplier;
@@ -50,7 +50,7 @@ public abstract class Weapon : MonoBehaviour
 
     protected virtual void Update()
     {
-        if (Data == null) return;
+        if (Data == null || Time.deltaTime <= 0f) return;
 
         cooldownTimer -= Time.deltaTime;
         if (cooldownTimer > 0f) return;
