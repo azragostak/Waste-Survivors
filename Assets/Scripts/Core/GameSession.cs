@@ -8,8 +8,9 @@ using UnityEngine.SceneManagement;
 // Debug tuşları (editörde ve development build'de):
 //   F9 = finali hemen tetikle
 //   F8 = süreyi 1 dakika ileri sar (zorluk eğrisini denemek için)
-//   F7 = evrimi hazırla: evrimi olan ilk silahı maksimum seviyeye çıkarır, gereken pasifi verir ve
-//        bir level atlatır; level-up ekranında EVRİM kartı çıkar
+//   F6 = boss'u hemen çağır (süreyi 10:00'a atlar)
+//   F7 = evrimi hazırla: elindeki (yoksa havuzdaki) evrimi olan ilk silahı maksimum seviyeye çıkarır,
+//        gereken pasifi verir ve bir level atlatır; level-up ekranında EVRİM kartı çıkar
 //   R  = oyun bittiyse yeniden başlat
 public class GameSession : MonoBehaviour
 {
@@ -24,9 +25,13 @@ public class GameSession : MonoBehaviour
     public bool IsFinished { get; private set; }
     public bool IsGameOver { get; private set; }
     public bool IsOver => IsFinished || IsGameOver;
+    // Süre doldu, normal düşmanlar durdu, boss geldi (final boss ölünce başlar)
+    public bool IsBossPhase { get; private set; }
 
     // Final başladığında (dünya temizlenirken)
     public event Action Finished;
+    // Süre dolup boss evresi başladığında
+    public event Action BossPhaseStarted;
     // Oyuncu öldüğünde
     public event Action GameOver;
 
@@ -51,6 +56,10 @@ public class GameSession : MonoBehaviour
     {
         Instance = this;
         Time.timeScale = 1f;
+
+        // Önceki oyunun finalinden outro çalıyorsa listeye dön
+        if (MusicPlayer.Instance != null)
+            MusicPlayer.Instance.OnRunStarted();
     }
 
     void OnEnable() => Enemy.Killed += OnEnemyKilled;
@@ -74,8 +83,8 @@ public class GameSession : MonoBehaviour
         if (!IsOver)
         {
             Elapsed += Time.deltaTime;
-            if (Elapsed >= RunDuration)
-                TriggerFinale();
+            if (Elapsed >= RunDuration && !IsBossPhase)
+                StartBossPhase();
         }
 
         if (DebugKeysEnabled && !IsOver && !PauseMenu.IsPaused)
@@ -84,11 +93,14 @@ public class GameSession : MonoBehaviour
                 TriggerFinale();
             else if (Input.GetKeyDown(KeyCode.F8))
             {
-                Elapsed = Mathf.Min(RunDuration - 1f, Elapsed + 60f);
+                if (!IsBossPhase)
+                    Elapsed = Mathf.Min(RunDuration - 1f, Elapsed + 60f);
                 Debug.Log($"Süre ileri sarıldı: {FormatTime(Elapsed)}");
             }
             else if (Input.GetKeyDown(KeyCode.F7))
                 DebugPrepareEvolution();
+            else if (Input.GetKeyDown(KeyCode.F6))
+                StartBossPhase();
         }
 
         if (IsOver && Input.GetKeyDown(KeyCode.R))
@@ -103,7 +115,17 @@ public class GameSession : MonoBehaviour
         var experience = FindObjectOfType<PlayerExperience>();
         if (pool == null || weapons == null || experience == null) return;
 
+        // Önce elde olan silahlar (sıradaki F7 bir sonrakini dener), yoksa havuzdakiler
+        var candidates = new System.Collections.Generic.List<WeaponData>();
+        foreach (var weapon in weapons.Weapons)
+            candidates.Add(weapon.Data);
         foreach (var data in pool.weapons)
+        {
+            if (!candidates.Contains(data))
+                candidates.Add(data);
+        }
+
+        foreach (var data in candidates)
         {
             if (data == null || data.evolution == null || weapons.HasEvolved(data)) continue;
 
@@ -132,6 +154,15 @@ public class GameSession : MonoBehaviour
         Debug.LogWarning("Evrim testi: evrimleşebilecek silah bulunamadı.");
     }
 
+    public void StartBossPhase()
+    {
+        if (IsBossPhase || IsOver) return;
+
+        IsBossPhase = true;
+        Elapsed = Mathf.Max(Elapsed, RunDuration);
+        BossPhaseStarted?.Invoke();
+    }
+
     public void TriggerFinale()
     {
         if (IsOver) return;
@@ -150,10 +181,10 @@ public class GameSession : MonoBehaviour
         Time.timeScale = 0f;
 
         var experience = FindObjectOfType<PlayerExperience>();
-        string stats = $"Süre {FormatTime(Elapsed)}" +
-                       $"     Seviye {(experience != null ? experience.Level : 1)}" +
-                       $"     Temizlenen kirlilik {Kills}";
-        EndScreen.Show("KİRLİLİK KAZANDI", "Dünya hâlâ temizlenmeyi bekliyor.", new Color(1f, 0.45f, 0.4f), stats);
+        string stats = $"Time {FormatTime(Elapsed)}" +
+                       $"     Level {(experience != null ? experience.Level : 1)}" +
+                       $"     Enemies defeated {Kills}";
+        EndScreen.Show("POLLUTION WINS", "The world is still waiting to be cleaned.", new Color(1f, 0.45f, 0.4f), stats);
     }
 
     public void Restart()

@@ -48,7 +48,8 @@ MonoBehaviour:
   pressPrefab: {fileID: 300100004, guid: a4b810c23f4d49e18190b72c65d1e305, type: 3}
   dropStagger: 0.1
   targetLeadFactor: 0.6
-  magnetRadiusMultiplier: 1.4
+  magnetRadiusMultiplier: 1.15
   magnetDuration: 0.2
   magnetPullRate: 1.5
+  collectKillExperience: 1
 

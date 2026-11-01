@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 871d8a994d66447199bc270855bbd8a7, type: 3}
   m_Name: WindTurbine
   m_EditorClassIdentifier: 
-  displayName: "R\xFCzgar T\xFCrbini"
-  description: "Etraf\u0131nda t\xFCrbin kanatlar\u0131 d\xF6ner, \xE7arpt\u0131\u011F\u0131
-    her d\xFC\u015Fmana hasar verir. Geli\u015Ftik\xE7e kanat say\u0131s\u0131, hasar
-    ve d\xF6n\xFC\u015F h\u0131z\u0131 artar."
-  icon: {fileID: 1989680995971007737, guid: 607d032523642f9499a32875145770c1, type: 3}
+  displayName: "Wind Turbine"
+  description: "Turbine blades spin around you, damaging every enemy they hit. Blade count, damage and spin speed increase as it levels up."
+  icon: {fileID: 21300000, guid: d19d3de748e51064b95ff2968c7274be, type: 3}
   weaponPrefab: {fileID: 500200003, guid: eda423cf44344bf5be491bbe58c081b4, type: 3}
+  evolution: {fileID: 11400000, guid: 50bc5aae29334be98ad42e32e0867fc6, type: 2}
+  evolutionRequirement: {fileID: 11400000, guid: c6d932e45f6a47b39312d94e87f3a501, type: 2}
   levels:
-  - upgradeDescription: "Etraf\u0131nda d\u00F6nen 2 t\u00FCrbin kanad\u0131, \u00E7arpt\u0131\u011F\u0131 her d\u00FC\u015Fmana hasar verir."
+  - upgradeDescription: "2 turbine blades spin around you, damaging every enemy they hit."
     stats:
       damage: 14
       cooldown: 1
@@ -29,7 +29,7 @@ MonoBehaviour:
       speed: 240
       hitInterval: 0.4
       range: 0
-  - upgradeDescription: "D\u00F6n\u00FC\u015F h\u0131z\u0131 +%20"
+  - upgradeDescription: "Spin speed +20%"
     stats:
       damage: 14
       cooldown: 1
@@ -39,7 +39,7 @@ MonoBehaviour:
       speed: 288
       hitInterval: 0.4
       range: 0
-  - upgradeDescription: "+1 kanat"
+  - upgradeDescription: "+1 blade"
     stats:
       damage: 14
       cooldown: 1
@@ -49,7 +49,7 @@ MonoBehaviour:
       speed: 288
       hitInterval: 0.4
       range: 0
-  - upgradeDescription: "Hasar +%31"
+  - upgradeDescription: "Damage +29%"
     stats:
       damage: 18
       cooldown: 1
@@ -59,7 +59,7 @@ MonoBehaviour:
       speed: 288
       hitInterval: 0.4
       range: 0
-  - upgradeDescription: "Hasar +%22"
+  - upgradeDescription: "Damage +22%"
     stats:
       damage: 22
       cooldown: 1
@@ -69,7 +69,7 @@ MonoBehaviour:
       speed: 288
       hitInterval: 0.4
       range: 0
-  - upgradeDescription: "Kanatlar %15 daha uzun, hasar +%8"
+  - upgradeDescription: "Blades 15% longer, damage +5%"
     stats:
       damage: 23
       cooldown: 1
@@ -79,7 +79,7 @@ MonoBehaviour:
       speed: 288
       hitInterval: 0.4
       range: 0
-  - upgradeDescription: "D\u00F6n\u00FC\u015F h\u0131z\u0131 +%20, hasar +%9"
+  - upgradeDescription: "Spin speed +20%, damage +13%"
     stats:
       damage: 26
       cooldown: 1
@@ -89,7 +89,7 @@ MonoBehaviour:
       speed: 346
       hitInterval: 0.4
       range: 0
-  - upgradeDescription: "+1 kanat, hasar +%7"
+  - upgradeDescription: "+1 blade, damage +4%"
     stats:
       damage: 27
       cooldown: 1
@@ -99,7 +99,7 @@ MonoBehaviour:
       speed: 346
       hitInterval: 0.4
       range: 0
-  - upgradeDescription: "Hasar +%14, ayn\u0131 d\u00FC\u015Fmana daha s\u0131k vurur"
+  - upgradeDescription: "Damage +15%, hits the same enemy more often"
     stats:
       damage: 31
       cooldown: 1
@@ -109,7 +109,7 @@ MonoBehaviour:
       speed: 346
       hitInterval: 0.33
       range: 0
-  - upgradeDescription: "MAX: +1 kanat, hasar +%18, d\u00F6n\u00FC\u015F h\u0131z\u0131 +%20"
+  - upgradeDescription: "MAX: +1 blade, damage +19%, spin speed +20%"
     stats:
       damage: 37
       cooldown: 1

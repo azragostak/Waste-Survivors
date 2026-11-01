@@ -25,6 +25,8 @@ public static class SfxPlayer
     public static void Play(AudioClip clip, float volume = 1f, float pitchVariation = 0.08f,
         float minInterval = 0.05f, int maxVoices = 4, float pitch = 1f)
     {
+        GameAudio.EnsureInitialized();
+        volume *= GameAudio.SfxVolume;
         if (clip == null || volume <= 0f) return;
         EnsureVoices();
 

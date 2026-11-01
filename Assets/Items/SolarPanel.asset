@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 138f368a519b4dcaa8aeb7ca82564185, type: 3}
   m_Name: SolarPanel
   m_EditorClassIdentifier: 
-  displayName: "G\u00FCne\u015F Paneli"
-  description: "G\u00FCne\u015F enerjisiyle t\u00FCm silahlar\u0131n daha h\u0131zl\u0131 dolar ve daha s\u0131k ate\u015F eder."
+  displayName: "Solar Panel"
+  description: "Solar energy charges all your weapons faster, so they attack more often."
   icon: {fileID: -8646419420524770900, guid: 67f409968300ba248a4e3bad3de4af46, type: 3}
   stat: 1
   valuePerLevel: 0.1

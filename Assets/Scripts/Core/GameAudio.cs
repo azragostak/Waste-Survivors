@@ -2,18 +2,23 @@ using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// Oyun genelinde ses kontrolü: Tüm Sesler (Ana Ses / Hoparlör) ve Arkaplan Müziği (Nota).
+// Oyun genelinde ses kontrolü: Tüm Sesler (Ana Ses / Hoparlör) ve Arkaplan Müziği (Nota),
+// ayrıca müzik ve efekt ses seviyeleri (0-1; MusicPlayer ve SfxPlayer bunlarla çarpar).
 // Tercihler PlayerPrefs'te saklanır; sahne yeniden yüklendiğinde ("Yeni Oyun") korunur.
 public static class GameAudio
 {
     private const string MasterMuteKey = "WasteSurvivors_MasterMuted";
     private const string MusicMuteKey = "WasteSurvivors_MusicMuted";
+    private const string MusicVolumeKey = "WasteSurvivors_MusicVolume";
+    private const string SfxVolumeKey = "WasteSurvivors_SfxVolume";
 
     private static AudioSource musicSource;
     private static bool initialized;
 
     public static bool IsMasterMuted { get; private set; }
     public static bool IsMusicMuted { get; private set; }
+    public static float MusicVolume { get; private set; } = 1f;
+    public static float SfxVolume { get; private set; } = 1f;
 
     public static event Action StateChanged;
 
@@ -34,6 +39,8 @@ public static class GameAudio
 
         IsMasterMuted = PlayerPrefs.GetInt(MasterMuteKey, 0) == 1;
         IsMusicMuted = PlayerPrefs.GetInt(MusicMuteKey, 0) == 1;
+        MusicVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(MusicVolumeKey, 1f));
+        SfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(SfxVolumeKey, 1f));
         ApplyAll();
     }
 
@@ -60,6 +67,22 @@ public static class GameAudio
         PlayerPrefs.SetInt(MusicMuteKey, IsMusicMuted ? 1 : 0);
         PlayerPrefs.Save();
         ApplyAll();
+        StateChanged?.Invoke();
+    }
+
+    public static void SetMusicVolume(float value)
+    {
+        EnsureInitialized();
+        MusicVolume = Mathf.Clamp01(value);
+        PlayerPrefs.SetFloat(MusicVolumeKey, MusicVolume);
+        StateChanged?.Invoke();
+    }
+
+    public static void SetSfxVolume(float value)
+    {
+        EnsureInitialized();
+        SfxVolume = Mathf.Clamp01(value);
+        PlayerPrefs.SetFloat(SfxVolumeKey, SfxVolume);
         StateChanged?.Invoke();
     }
 

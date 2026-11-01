@@ -61,6 +61,9 @@ public class DifficultyTimeline : ScriptableObject
     [Tooltip("Belirli anlarda oyuncunun etrafını saran çemberler (gerilim zirveleri)")]
     public List<RingEvent> ringEvents = new();
 
+    [Tooltip("Süre dolunca (10:00) gelen boss. Boşsa doğrudan final başlar.")]
+    public Enemy boss;
+
     public int GetPhaseIndex(float seconds)
     {
         float minute = seconds / 60f;

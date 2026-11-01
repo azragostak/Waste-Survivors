@@ -23,6 +23,14 @@ public class WindTurbineWeapon : Weapon
     [Tooltip("Karakterlerin üstünde, can barlarının altında")]
     [SerializeField] private int sortingOrder = 3;
 
+    [Header("Elektrik (Fırtına Türbini evrimi)")]
+    [Tooltip("0 = kapalı. Vurulan düşman bu kadar sn sersemler ve elektrik çarpma efekti görünür.")]
+    [SerializeField, Min(0f)] private float shockStunDuration;
+    [Tooltip("Sersemleme bittikten sonra aynı düşmanın tekrar sersemleyemeyeceği süre (sn)")]
+    [SerializeField, Min(0f)] private float shockImmunity = 0.8f;
+    [Tooltip("Kanatların rengi; elektrikliyse arada beyaz çakar")]
+    [SerializeField] private Color bladeTint = Color.white;
+
     [Header("Ses")]
     [Tooltip("Opsiyonel: düz dönerken çalacak rüzgar sesi (boşsa yumuşak rüzgar uğultusu otomatik üretilir)")]
     [SerializeField] private AudioClip spinSound;
@@ -88,6 +96,8 @@ public class WindTurbineWeapon : Weapon
         }
 
         HitEnemies(stats, count, length, halfWidth);
+        if (shockStunDuration > 0f)
+            FlickerBlades();
         if (spinVolume > 0f && spinSoundAccum >= 180f)
         {
             spinSoundAccum %= 180f;
@@ -116,10 +126,12 @@ public class WindTurbineWeapon : Weapon
                 Vector2 dir = Direction(angle + i * 360f / count);
                 Vector2 root = center + dir * innerRadius;
                 Vector2 tip = center + dir * outerRadius;
-                if (DistanceToSegment(position, root, tip) > hitDistance) continue;
+                if (DistanceToSegment(position, root, tip) > hitDistance + enemy.BodyRadius) continue;
 
                 nextHitTime[enemy] = Time.time + Mathf.Max(0.05f, stats.hitInterval);
                 enemy.TakeDamage(stats.damage);
+                if (shockStunDuration > 0f && enemy.TryStun(shockStunDuration, shockImmunity))
+                    ShockEffect.Play(enemy, shockStunDuration);
                 hitAny = true;
                 break;
             }
@@ -147,6 +159,16 @@ public class WindTurbineWeapon : Weapon
             nextHitTime.Remove(key);
     }
 
+    // Elektrikli kanatlar arada bir beyaz çakar
+    private void FlickerBlades()
+    {
+        foreach (var blade in blades)
+        {
+            if (blade.TryGetComponent(out SpriteRenderer sr))
+                sr.color = Random.value < 0.12f ? Color.white : bladeTint;
+        }
+    }
+
     private void SyncBladeCount(int count)
     {
         while (blades.Count < count)
@@ -156,6 +178,7 @@ public class WindTurbineWeapon : Weapon
             var sr = go.AddComponent<SpriteRenderer>();
             sr.sprite = sprite;
             sr.sortingOrder = sortingOrder;
+            sr.color = bladeTint;
             blades.Add(go.transform);
         }
 

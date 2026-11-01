@@ -20,6 +20,8 @@ public class PlayerHealth : MonoBehaviour, IDamageable, IHealth
     private float health;
     private float invulnerableTimer;
     private float regenTimer;
+    private float lifeStealWindowStart;
+    private float lifeStealInWindow;
     private SpriteRenderer spriteRenderer;
     private Color baseColor;
 
@@ -27,6 +29,8 @@ public class PlayerHealth : MonoBehaviour, IDamageable, IHealth
     // Pasif itemlerden gelen bonus dahil
     public float MaxHealth => maxHealth + PlayerPassives.GetBonus(this, PassiveStat.MaxHealth);
     public bool IsAlive => health > 0f;
+    // Gaz maskesi gibi itemler en fazla bu kadar hasar azaltabilir
+    public const float MaxDamageReduction = 0.6f;
     // Finalde düşmanlar kaybolurken oyuncu hasar almasın
     public bool IsInvulnerable { get; set; }
 
@@ -72,12 +76,17 @@ public class PlayerHealth : MonoBehaviour, IDamageable, IHealth
             health = Mathf.Min(MaxHealth, health + regenPerSecond * Time.deltaTime);
     }
 
-    void OnCollisionStay2D(Collision2D collision)
+    void OnCollisionStay2D(Collision2D collision) => TouchEnemy(collision.collider);
+
+    // Boss Stampede'sinde koşan düşmanlar trigger olur; onlar da acıtsın
+    void OnTriggerStay2D(Collider2D other) => TouchEnemy(other);
+
+    private void TouchEnemy(Collider2D other)
     {
         if (invulnerableTimer > 0f || !IsAlive) return;
 
-        var enemy = collision.collider.GetComponentInParent<Enemy>();
-        if (enemy != null && enemy.IsAlive)
+        var enemy = other.GetComponentInParent<Enemy>();
+        if (enemy != null && enemy.IsAlive && !enemy.IsStunned)
             TakeDamage(enemy.ContactDamage);
     }
 
@@ -85,13 +94,37 @@ public class PlayerHealth : MonoBehaviour, IDamageable, IHealth
     {
         if (!IsAlive || amount <= 0f || invulnerableTimer > 0f || IsInvulnerable) return;
 
-        health = Mathf.Max(0f, health - amount);
+        float reduction = Mathf.Min(MaxDamageReduction, PlayerPassives.GetBonus(this, PassiveStat.DamageReduction));
+        health = Mathf.Max(0f, health - amount * (1f - reduction));
         invulnerableTimer = invulnerabilityDuration;
+
+        var sounds = GameSounds.Instance;
+        if (sounds != null)
+            SfxPlayer.Play(sounds.playerHurt, sounds.playerHurtVolume, pitchVariation: 0.06f, minInterval: 0.1f, maxVoices: 2);
         regenTimer = regenDelay;
         HealthChanged?.Invoke(this);
 
         if (health <= 0f)
             Die();
+    }
+
+    // Can çalma: hasar verdikçe iyileşir, ama 1 sn'lik pencerede en fazla maxPerSecond kadar
+    // (hızlı silahlar oyuncuyu ölümsüz yapmasın)
+    public void LifeSteal(float amount, float maxPerSecond)
+    {
+        if (!IsAlive || amount <= 0f || maxPerSecond <= 0f) return;
+
+        if (Time.time - lifeStealWindowStart >= 1f)
+        {
+            lifeStealWindowStart = Time.time;
+            lifeStealInWindow = 0f;
+        }
+
+        float allowed = Mathf.Min(amount, maxPerSecond - lifeStealInWindow);
+        if (allowed <= 0f) return;
+
+        lifeStealInWindow += allowed;
+        Heal(allowed);
     }
 
     public void Heal(float amount)

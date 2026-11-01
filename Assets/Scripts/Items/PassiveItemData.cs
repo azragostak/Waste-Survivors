@@ -10,7 +10,9 @@ public enum PassiveStat
     MaxHealth,         // maksimum can (düz sayı)
     PickupRadius,      // recycle toplama alanı (%)
     CleanRadius,       // zemin temizleme alanı (%)
+    DamageReduction,   // oyuncunun aldığı hasar azalır (%), en fazla %60
 }
+// Not: yeni değerler hep sona eklenmeli; asset'ler sayı olarak sakladığı için araya ekleme eski itemleri bozar.
 
 // Bir pasif itemin verisi: isim, ikon ve her seviyede verdiği bonus.
 // Yeni item = yeni PassiveItemData asset'i + UpgradePool'a eklemek.
@@ -36,13 +38,14 @@ public class PassiveItemData : ScriptableObject
         float value = GetTotalValue(level);
         return stat switch
         {
-            PassiveStat.Damage => $"+%{value * 100f:0} hasar",
-            PassiveStat.CooldownReduction => $"+%{(1f / Mathf.Max(0.3f, 1f - value) - 1f) * 100f:0} saldırı hızı",
-            PassiveStat.Area => $"+%{value * 100f:0} silah alanı",
-            PassiveStat.MoveSpeed => $"+%{value * 100f:0} hareket hızı",
-            PassiveStat.MaxHealth => $"+{value:0} maksimum can",
-            PassiveStat.PickupRadius => $"+%{value * 100f:0} toplama alanı",
-            PassiveStat.CleanRadius => $"+%{value * 100f:0} temizleme alanı",
+            PassiveStat.Damage => $"+{value * 100f:0}% damage",
+            PassiveStat.CooldownReduction => $"+{(1f / Mathf.Max(0.3f, 1f - value) - 1f) * 100f:0}% attack speed",
+            PassiveStat.Area => $"+{value * 100f:0}% weapon area",
+            PassiveStat.MoveSpeed => $"+{value * 100f:0}% move speed",
+            PassiveStat.MaxHealth => $"+{value:0} max health",
+            PassiveStat.PickupRadius => $"+{value * 100f:0}% pickup range",
+            PassiveStat.CleanRadius => $"+{value * 100f:0}% cleaning range",
+            PassiveStat.DamageReduction => $"-{Mathf.Min(value, PlayerHealth.MaxDamageReduction) * 100f:0}% damage taken",
             _ => "",
         };
     }

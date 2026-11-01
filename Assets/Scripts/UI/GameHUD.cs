@@ -50,6 +50,11 @@ public class GameHUD : MonoBehaviour
     private RectTransform xpFill;
     private TextMeshProUGUI levelText;
     private TextMeshProUGUI timerText;
+    private Transform hudCanvas;
+    private RectTransform bossBar;
+    private RectTransform bossFill;
+    private TextMeshProUGUI bossName;
+    private Enemy bossTarget;
     private int shownSecond = -1;
     private readonly List<Slot> weaponSlots = new();
     private readonly List<Slot> passiveSlots = new();
@@ -85,6 +90,7 @@ public class GameHUD : MonoBehaviour
         }
 
         var canvas = CreateCanvas();
+        hudCanvas = canvas;
         CreateXpBar(canvas);
         CreateSlots(canvas);
 
@@ -132,6 +138,11 @@ public class GameHUD : MonoBehaviour
 
     private void AttachEnemyBar(Enemy enemy)
     {
+        if (enemy.IsBoss)
+        {
+            ShowBossBar(enemy);
+            return;
+        }
         if (enemy.GetComponentInChildren<WorldHealthBar>() != null) return;
         WorldHealthBar.Attach(enemy, enemy, enemyHealthColor,
             enemyBarSize.x, enemyBarSize.y, hideFullEnemyBars, healthBarSortingOrder);
@@ -227,8 +238,62 @@ public class GameHUD : MonoBehaviour
             UIBuilder.TopStrip(timerText.rectTransform, xpBarHeight + 6f, 46f);
     }
 
+    // XP barı ve sürenin altında: boss adı ve can barı
+    private void ShowBossBar(Enemy boss)
+    {
+        if (hudCanvas == null) return;
+        bossTarget = boss;
+
+        if (bossBar == null)
+        {
+            bossBar = UIBuilder.CreateRect(hudCanvas, "BossBar");
+            bossBar.anchorMin = bossBar.anchorMax = new Vector2(0.5f, 1f);
+            bossBar.pivot = new Vector2(0.5f, 1f);
+            bossBar.sizeDelta = new Vector2(900f, 60f);
+            bossBar.anchoredPosition = new Vector2(0f, -(xpBarHeight + 56f));
+
+            bossName = UIBuilder.CreateText(bossBar, "Name", font, 24f, TextAlignmentOptions.Center);
+            if (bossName != null)
+            {
+                bossName.color = new Color(1f, 0.85f, 0.6f);
+                UIBuilder.TopStrip(bossName.rectTransform, 0f, 30f);
+            }
+
+            var background = UIBuilder.CreateImage(bossBar, "Background", new Color(0f, 0f, 0f, 0.7f)).rectTransform;
+            UIBuilder.TopStrip(background, 32f, 22f);
+            bossFill = UIBuilder.CreateImage(background, "Fill", new Color(0.85f, 0.25f, 0.2f)).rectTransform;
+            bossFill.anchorMin = Vector2.zero;
+            bossFill.anchorMax = Vector2.one;
+            bossFill.offsetMin = new Vector2(3f, 3f);
+            bossFill.offsetMax = new Vector2(-3f, -3f);
+        }
+
+        UIBuilder.SetText(bossName, boss is BossEnemy named ? named.BossName : "BOSS");
+        bossBar.gameObject.SetActive(true);
+    }
+
+    private void UpdateBossBar()
+    {
+        if (bossBar == null || !bossBar.gameObject.activeSelf) return;
+
+        if (bossTarget == null || !bossTarget.IsAlive)
+        {
+            bossBar.gameObject.SetActive(false);
+            return;
+        }
+        // Faz 2'de isim değişir ("- ENRAGED")
+        if (bossTarget is BossEnemy named)
+            UIBuilder.SetText(bossName, named.BossName);
+
+        float ratio = bossTarget.MaxHealth > 0f ? Mathf.Clamp01(bossTarget.CurrentHealth / bossTarget.MaxHealth) : 0f;
+        bossFill.anchorMax = new Vector2(ratio, 1f);
+        bossFill.offsetMax = new Vector2(ratio > 0f ? -3f : 0f, -3f);
+    }
+
     void Update()
     {
+        UpdateBossBar();
+
         var session = GameSession.Instance;
         if (timerText == null || session == null) return;
 

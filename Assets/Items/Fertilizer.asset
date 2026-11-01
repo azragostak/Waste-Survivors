@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 138f368a519b4dcaa8aeb7ca82564185, type: 3}
   m_Name: Fertilizer
   m_EditorClassIdentifier: 
-  displayName: "G\u00FCbre"
-  description: "T\u00FCm silahlar\u0131n\u0131n etki ve ezme alan\u0131n\u0131 b\u00FCy\u00FCt\u00FCr."
+  displayName: "Fertilizer"
+  description: "Enlarges the area of all your weapons."
   icon: {fileID: 21300000, guid: 22090ef527919bb48b767b7edd602d15, type: 3}
   stat: 2
   valuePerLevel: 0.15

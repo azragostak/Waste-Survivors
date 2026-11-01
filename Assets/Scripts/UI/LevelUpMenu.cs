@@ -143,14 +143,14 @@ public class LevelUpMenu : MonoBehaviour
         if (choosingStartWeapon)
         {
             BuildStartWeaponOptions();
-            UIBuilder.SetText(titleText, "SİLAHINI SEÇ");
-            UIBuilder.SetText(subtitleText, "Bu silahla başlayacaksın  (1 - 2 - 3)");
+            UIBuilder.SetText(titleText, "CHOOSE YOUR WEAPON");
+            UIBuilder.SetText(subtitleText, "You will start with this weapon  (1 - 2 - 3)");
         }
         else
         {
             BuildOptions();
             UIBuilder.SetText(titleText, "LEVEL UP!");
-            UIBuilder.SetText(subtitleText, "Bir geliştirme seç  (1 - 2 - 3)");
+            UIBuilder.SetText(subtitleText, "Choose an upgrade  (1 - 2 - 3)");
         }
 
         for (int i = 0; i < cards.Count; i++)
@@ -218,7 +218,7 @@ public class LevelUpMenu : MonoBehaviour
             if (data == null) continue;
             candidates.Add(new Option
             {
-                tag = "BAŞLANGIÇ SİLAHI",
+                tag = "STARTING WEAPON",
                 title = data.displayName,
                 description = data.description,
                 icon = UIBuilder.GetWeaponIcon(data),
@@ -250,7 +250,7 @@ public class LevelUpMenu : MonoBehaviour
             var target = weapon;
             currentOptions.Add(new Option
             {
-                tag = "EVRİM!",
+                tag = "EVOLUTION!",
                 title = evolved.displayName,
                 description = $"<color=#e0b0ff>{recipe}</color>\n\n{evolved.description}",
                 icon = UIBuilder.GetWeaponIcon(evolved),
@@ -284,7 +284,7 @@ public class LevelUpMenu : MonoBehaviour
                 {
                     candidates.Add(new Option
                     {
-                        tag = $"SİLAH  Lv {owned.Level} → {owned.Level + 1}",
+                        tag = $"WEAPON  Lv {owned.Level} → {owned.Level + 1}",
                         title = data.displayName,
                         description = data.GetUpgradeDescription(owned.Level + 1),
                         icon = UIBuilder.GetWeaponIcon(data),
@@ -296,7 +296,7 @@ public class LevelUpMenu : MonoBehaviour
                 {
                     candidates.Add(new Option
                     {
-                        tag = "YENİ SİLAH",
+                        tag = "NEW WEAPON",
                         title = data.displayName,
                         description = data.description,
                         icon = UIBuilder.GetWeaponIcon(data),
@@ -318,7 +318,7 @@ public class LevelUpMenu : MonoBehaviour
                 {
                     candidates.Add(new Option
                     {
-                        tag = $"İTEM  Lv {owned.Level} → {owned.Level + 1}",
+                        tag = $"ITEM  Lv {owned.Level} → {owned.Level + 1}",
                         title = data.displayName,
                         description = $"{data.GetEffectText(owned.Level)}  →  {data.GetEffectText(owned.Level + 1)}",
                         icon = data.icon,
@@ -330,7 +330,7 @@ public class LevelUpMenu : MonoBehaviour
                 {
                     candidates.Add(new Option
                     {
-                        tag = "YENİ İTEM",
+                        tag = "NEW ITEM",
                         title = data.displayName,
                         description = $"{data.description}\n\n<color=#9fd0ff>{data.GetEffectText(1)}</color>",
                         icon = data.icon,
@@ -354,9 +354,9 @@ public class LevelUpMenu : MonoBehaviour
         {
             currentOptions.Add(new Option
             {
-                tag = "İYİLEŞ",
-                title = "Temiz Hava",
-                description = "30 can yeniler.",
+                tag = "HEAL",
+                title = "Fresh Air",
+                description = "Restores 30 health.",
                 color = HealColor,
                 apply = () => { if (health != null) health.Heal(30f); },
             });
@@ -383,7 +383,7 @@ public class LevelUpMenu : MonoBehaviour
         subtitleText = subtitle;
         if (subtitle != null)
         {
-            subtitle.text = "Bir geliştirme seç  (1 - 2 - 3)";
+            subtitle.text = "Choose an upgrade  (1 - 2 - 3)";
             subtitle.color = new Color(0.85f, 0.85f, 0.85f);
             PlaceCentered(subtitle.rectTransform, new Vector2(0f, 280f), new Vector2(900f, 40f));
         }

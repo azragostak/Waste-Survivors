@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfea8dc0625546c698f2b80907cf41ae, type: 3}
+  m_Name: GameSounds
+  m_EditorClassIdentifier: 
+  playerHurt: {fileID: 8300000, guid: 1740a88b8d56dc24d864f9a10813ba3d, type: 3}
+  playerHurtVolume: 0.5

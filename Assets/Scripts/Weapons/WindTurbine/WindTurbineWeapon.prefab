@@ -49,7 +49,7 @@ MonoBehaviour:
   innerRadius: 1
   enemyRadius: 0.25
   sortingOrder: 3
-  hitSound: {fileID: 8300000, guid: 27c1cfe7c7a15304ab457bb1fe08538c, type: 3}
+  hitSound: {fileID: 8300000, guid: 9d011af307f4c384da562477794f0525, type: 3}
   spinSound: {fileID: 0}
-  spinVolume: 0.16
+  spinVolume: 0
   hitVolume: 0.18

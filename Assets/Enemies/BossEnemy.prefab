@@ -1,0 +1,275 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &700100001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 700100002}
+  - component: {fileID: 700100004}
+  - component: {fileID: 700100005}
+  - component: {fileID: 700100006}
+  - component: {fileID: 700100009}
+  m_Layer: 0
+  m_Name: BossEnemy
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &700100002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700100001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 700100008}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!50 &700100004
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700100001}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 50
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 1
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
+--- !u!58 &700100005
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700100001}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 1.3
+--- !u!114 &700100006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700100001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 739ecefb2ce94cdba887c1771942e9ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 60000
+  healthScaling: 0
+  moveSpeed: 1
+  maxSpeed: 2
+  hitFlashColor: {r: 1, g: 0.4, b: 0.4, a: 1}
+  hitFlashDuration: 0.1
+  contactDamage: 40
+  bodyRadius: 1.3
+  isBoss: 1
+  recycleDrop: {fileID: 0}
+  experienceReward: 0
+  bossName: TRASH MOUNTAIN
+  bodySprite: {fileID: -7137642941327523984, guid: d26aff4aa229bed4f8d2c1db2dbd58f5, type: 3}
+  crawlSpeed: 0.9
+  crawlCycle: 1.2
+  stretchAmount: 0.08
+  contractedSpeedRatio: 0.35
+  wobbleAmount: 0.015
+  wobbleFrequency: 3
+  enragedCrawlMultiplier: 1.25
+  deathSound: {fileID: 8300000, guid: 5f0f76ec31a2fd34ebe76a424a896fbf, type: 3}
+  deathVolume: 0.85
+  dustPerSecond: 22
+  dustColor: {r: 0.62, g: 0.55, b: 0.45, a: 0.55}
+  dustHalfWidth: 1.5
+  dustFeetOffset: -1.35
+--- !u!1 &700100007
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 700100008}
+  - component: {fileID: 700100003}
+  m_Layer: 0
+  m_Name: Visual
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &700100008
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700100007}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.64, z: 0}
+  m_LocalScale: {x: 1.4, y: 1.4, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 700100002}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &700100003
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700100007}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 2.56, y: 2.56}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 0
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!114 &700100009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700100001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eceda5ff8df445c09299138c07f1ea31, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  entranceDelay: 2.5
+  pauseBetweenAttacks: 2.4
+  phase2HealthRatio: 0.5
+  phase2Speed: 1.35
+  minTelegraphTime: 0.8
+  slamRadius: 2.4
+  slamTelegraph: 1.4
+  slamDamage: 35
+  phase2SlamCount: 3
+  slamSpread: 3.5
+  slamImpactColor: {r: 0.95, g: 0.35, b: 0.2, a: 1}
+  slamSounds:
+  - {fileID: 8300000, guid: c4e5405cd48a724478c9361612f931de, type: 3}
+  - {fileID: 8300000, guid: e81732cbe1a14704ba97aa1606123f85, type: 3}
+  slamVolume: 0.6
+  laneWidth: 1.3
+  laneTelegraph: 1.4
+  stampedeSpeed: 12
+  stampedeCountPerLane: 25
+  stampedeSpacing: 0.3
+  phase2LanesPerAxis: 2
+  extraLaneOffset: 3
+  volleySprites:
+  - {fileID: 21300000, guid: f4c3804a08a433d488bc1a887a17182c, type: 3}
+  - {fileID: 21300000, guid: 44658b4f4b73e86429c03ef2e8f11c28, type: 3}
+  volleyWindup: 0.8
+  volleyWaves: 3
+  volleyCount: 14
+  volleySpeed: 3.6
+  volleyDamage: 15
+  volleyWaveInterval: 0.5
+  volleyProjectileSize: 0.5
+  windupColor: {r: 1, g: 0.55, b: 0.2, a: 1}
+  minionPrefabs:
+  - {fileID: 200100006, guid: 1968227425fa4ed194ec15c94bd7ea63, type: 3}
+  - {fileID: 100100006, guid: dfc859d0d1614b5f9c4debaf26a92e3b, type: 3}
+  - {fileID: 600100006, guid: 0ec2108c9cac42bfab782e0b87e6c603, type: 3}
+  minionInterval: 14
+  minionCount: 12
+  minionHealthMultiplier: 3.6
+  minionDamageMultiplier: 1.4

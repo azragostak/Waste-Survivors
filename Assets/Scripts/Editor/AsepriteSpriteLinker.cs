@@ -20,15 +20,21 @@ public static class AsepriteSpriteLinker
     {
         new Link
         {
-            targetPath = "Assets/Scripts/Weapons/WindTurbine/WindTurbine.asset",
-            propertyName = "icon",
+            targetPath = "Assets/Scripts/Weapons/WindTurbine/WindTurbineWeapon.prefab",
+            propertyName = "bladeSprite",
             spritePaths = new[] { "Assets/Sprites/ruzgar_turbini_kanat.aseprite" },
         },
         new Link
         {
-            targetPath = "Assets/Scripts/Weapons/WindTurbine/WindTurbineWeapon.prefab",
-            propertyName = "bladeSprite",
-            spritePaths = new[] { "Assets/Sprites/ruzgar_turbini_kanat.aseprite" },
+            targetPath = "Assets/Enemies/BossEnemy.prefab",
+            propertyName = "bodySprite",
+            spritePaths = new[] { "Assets/Sprites/boss_cop_tepesi.aseprite" },
+        },
+        new Link
+        {
+            targetPath = "Assets/Items/GasMask.asset",
+            propertyName = "icon",
+            spritePaths = new[] { "Assets/Sprites/Items/gaz_maskesi.aseprite" },
         },
         new Link
         {

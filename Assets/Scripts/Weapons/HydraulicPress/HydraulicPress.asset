@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 871d8a994d66447199bc270855bbd8a7, type: 3}
   m_Name: HydraulicPress
   m_EditorClassIdentifier: 
-  displayName: Hidrolik Pres
-  description: "D\xFC\u015Fmanlar\u0131n tepesine g\xF6kten a\u011F\u0131r bir geri d\xF6n\xFC\u015F\xFCm presi indirerek alan hasar\u0131 verir."
+  displayName: "Hydraulic Press"
+  description: "Drops a heavy recycling press from the sky onto enemies, dealing area damage."
   icon: {fileID: 21300000, guid: 8c941e39271a6764d998e7be9730d2eb, type: 3}
   weaponPrefab: {fileID: 300200003, guid: a4b810c23f4d49e18190b72c65d1e306, type: 3}
   evolution: {fileID: 11400000, guid: fdb4d0a5e5764c51aa32be02131a0926, type: 2}
   evolutionRequirement: {fileID: 11400000, guid: 7d42230ef17342c0b04b1b4cf29b679c, type: 2}
   levels:
-  - upgradeDescription: "D\xFC\u015Fmanlar\u0131n tepesine g\xF6kten hidrolik pres d\xFC\u015F\xFCrerek ezer."
+  - upgradeDescription: "Drops a hydraulic press from the sky to crush enemies."
     stats:
       damage: 33
       cooldown: 3.2
@@ -29,7 +29,7 @@ MonoBehaviour:
       speed: 18
       hitInterval: 0
       range: 7.5
-  - upgradeDescription: "+1 hidrolik pres"
+  - upgradeDescription: "+1 hydraulic press"
     stats:
       damage: 33
       cooldown: 3.2
@@ -39,7 +39,7 @@ MonoBehaviour:
       speed: 18
       hitInterval: 0
       range: 7.5
-  - upgradeDescription: "Hasar +15, ezme alan\u0131 +%25"
+  - upgradeDescription: "Damage +15, crush area +25%"
     stats:
       damage: 48
       cooldown: 3.2
@@ -49,7 +49,7 @@ MonoBehaviour:
       speed: 18
       hitInterval: 0
       range: 7.5
-  - upgradeDescription: "Daha s\u0131k ve daha h\u0131zl\u0131 d\xFC\u015Fer"
+  - upgradeDescription: "Drops faster and more often"
     stats:
       damage: 48
       cooldown: 2.5
@@ -59,7 +59,7 @@ MonoBehaviour:
       speed: 22
       hitInterval: 0
       range: 8
-  - upgradeDescription: "+1 pres, hasar +18, daha geni\u015F ezme alan\u0131"
+  - upgradeDescription: "+1 press, damage +18, wider crush area"
     stats:
       damage: 66
       cooldown: 2.2
@@ -69,7 +69,7 @@ MonoBehaviour:
       speed: 24
       hitInterval: 0
       range: 8.5
-  - upgradeDescription: "Hasar +24"
+  - upgradeDescription: "Damage +24"
     stats:
       damage: 90
       cooldown: 2.2
@@ -79,7 +79,7 @@ MonoBehaviour:
       speed: 24
       hitInterval: 0
       range: 8.5
-  - upgradeDescription: "Ezme alan\u0131 +%15"
+  - upgradeDescription: "Crush area +15%"
     stats:
       damage: 90
       cooldown: 2.2
@@ -89,7 +89,7 @@ MonoBehaviour:
       speed: 24
       hitInterval: 0
       range: 8.5
-  - upgradeDescription: "Daha s\u0131k d\u00FC\u015Fer"
+  - upgradeDescription: "Drops more often"
     stats:
       damage: 90
       cooldown: 1.9
@@ -99,7 +99,7 @@ MonoBehaviour:
       speed: 24
       hitInterval: 0
       range: 8.5
-  - upgradeDescription: "+1 pres"
+  - upgradeDescription: "+1 press"
     stats:
       damage: 90
       cooldown: 1.9
@@ -109,7 +109,7 @@ MonoBehaviour:
       speed: 24
       hitInterval: 0
       range: 8.5
-  - upgradeDescription: "MAX: Hasar +36, daha geni\u015F alan, daha h\u0131zl\u0131 ve s\u0131k d\u00FC\u015Fer"
+  - upgradeDescription: "MAX: Damage +36, wider area, drops faster and more often"
     stats:
       damage: 126
       cooldown: 1.7

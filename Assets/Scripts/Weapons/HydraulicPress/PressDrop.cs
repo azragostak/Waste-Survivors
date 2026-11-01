@@ -42,6 +42,8 @@ public class PressDrop : MonoBehaviour
     private float magnetRadius;
     private float magnetDuration;
     private float magnetPullRate;
+    private bool collectKillExperience;
+    private static PlayerExperience playerExperience;
     private LineRenderer magnetRing;
     private static Material magnetRingMaterial;
 
@@ -56,11 +58,12 @@ public class PressDrop : MonoBehaviour
 
     // Drop'tan önce çağrılır. radius: çekim yarıçapı, duration: düşmeden önceki çekim süresi,
     // pullRate: saniyede kalan mesafenin ne kadarının kapanacağı (üstel; büyüdükçe daha sert çeker)
-    public void EnableMagnet(float radius, float duration, float pullRate)
+    public void EnableMagnet(float radius, float duration, float pullRate, bool collectKills)
     {
         magnetRadius = radius;
         magnetDuration = duration;
         magnetPullRate = pullRate;
+        collectKillExperience = collectKills;
     }
 
     public void Drop(Vector2 targetPosition, WeaponStats weaponStats, float delay = 0f)
@@ -170,13 +173,23 @@ public class PressDrop : MonoBehaviour
         Destroy(gameObject);
     }
 
+    // Ezilen düşmanın düşürdüğü XP oyuncuya uçar
+    private static void AttractDrop(RecyclePickup drop)
+    {
+        if (drop == null) return;
+        if (playerExperience == null)
+            playerExperience = FindObjectOfType<PlayerExperience>();
+        if (playerExperience != null)
+            drop.Attract(playerExperience);
+    }
+
     private void PullEnemies()
     {
         float step = 1f - Mathf.Exp(-magnetPullRate * Time.deltaTime);
         Enemy.GetInRadius(impactPoint, magnetRadius, hits);
         foreach (var enemy in hits)
         {
-            if (!enemy.TryGetComponent(out Rigidbody2D body)) continue;
+            if (enemy.IsBoss || !enemy.TryGetComponent(out Rigidbody2D body)) continue;
             Vector2 toCenter = impactPoint - body.position;
             // Merkezde üst üste yığılmasınlar
             if (toCenter.sqrMagnitude < 0.3f * 0.3f) continue;
@@ -221,7 +234,11 @@ public class PressDrop : MonoBehaviour
 
         Enemy.GetInRadius(impactPoint, stats.area, hits);
         foreach (var enemy in hits)
+        {
             enemy.TakeDamage(stats.damage);
+            if (collectKillExperience && !enemy.IsAlive)
+                AttractDrop(enemy.LastDrop);
+        }
 
         if (impactVisualPrefab != null)
         {

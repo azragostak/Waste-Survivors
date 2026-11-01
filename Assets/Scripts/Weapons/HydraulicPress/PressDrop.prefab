@@ -104,5 +104,5 @@ MonoBehaviour:
   shockwaveLifetime: 0.3
   shockwaveColor: {r: 1, g: 0.78, b: 0.2, a: 1}
   shadowColor: {r: 0, g: 0, b: 0, a: 0.38}
-  impactSound: {fileID: 8300000, guid: 61d3d06b0f458f44c8811757d2dacd45, type: 3}
-  impactVolume: 0.28
+  impactSound: {fileID: 8300000, guid: 173794c49d88d4747a383e308701fa40, type: 3}
+  impactVolume: 0.6

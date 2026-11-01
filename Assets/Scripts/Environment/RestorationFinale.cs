@@ -39,6 +39,9 @@ public class RestorationFinale : MonoBehaviour
         if (rain != null)
             StartCoroutine(FadeRain(rain));
 
+        if (MusicPlayer.Instance != null)
+            MusicPlayer.Instance.PlayOutro();
+
         yield return Wave(center);
 
         // Ekran dışında kalanlar da gitsin, sonsuz zeminin geri kalanı temiz yüklensin
@@ -226,11 +229,11 @@ public class RestorationFinale : MonoBehaviour
         var cleaner = FindObjectOfType<GroundCleaner>();
 
         string stats =
-            $"Süre {GameSession.FormatTime(session != null ? session.Elapsed : 0f)}" +
-            $"     Seviye {(experience != null ? experience.Level : 1)}" +
-            $"     Temizlenen kirlilik {(session != null ? session.Kills : 0)}" +
-            $"     Temizlenen alan {(cleaner != null ? cleaner.CleanedTiles : 0)} kare";
+            $"Time {GameSession.FormatTime(session != null ? session.Elapsed : 0f)}" +
+            $"     Level {(experience != null ? experience.Level : 1)}" +
+            $"     Enemies defeated {(session != null ? session.Kills : 0)}" +
+            $"     Area cleaned {(cleaner != null ? cleaner.CleanedTiles : 0)} tiles";
 
-        EndScreen.Show("DÜNYA TEMİZLENDİ!", "Kirlilik yok oldu, doğa geri döndü.", new Color(0.55f, 1f, 0.5f), stats);
+        EndScreen.Show("THE WORLD IS CLEAN!", "The pollution is gone. Nature is back.", new Color(0.55f, 1f, 0.5f), stats);
     }
 }

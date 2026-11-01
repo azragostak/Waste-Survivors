@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 138f368a519b4dcaa8aeb7ca82564185, type: 3}
   m_Name: Magnet
   m_EditorClassIdentifier: 
-  displayName: "M\u0131knat\u0131s"
-  description: "Etraftaki geri d\u00F6n\u00FC\u015F\u00FCm coinlerini daha uzaktan \u00E7eker."
+  displayName: "Magnet"
+  description: "Pulls coins in from farther away."
   icon: {fileID: 21300000, guid: 76ab4ff248b94a62a063e828ec4760bd, type: 3}
   stat: 5
   valuePerLevel: 0.25

@@ -33,6 +33,7 @@ public class RecyclePickup : MonoBehaviour
 
     private PlayerExperience collector;
     private float speed;
+    private bool consumed;
     private Vector3 baseScale;
 
     public int Experience
@@ -57,26 +58,34 @@ public class RecyclePickup : MonoBehaviour
 
     void OnDisable() => active.Remove(this);
 
-    // Düşmanlar ölünce bunu çağırır; sınır doluysa XP'yi kameradan en uzak parçaya ekler
-    public static void Drop(RecyclePickup prefab, Vector2 position, int amount)
+    // Düşmanlar ölünce bunu çağırır ve düşen parçayı döndürür.
+    // Sınır doluysa kameradan en uzak parça silinir, XP'si yeni parçaya eklenir:
+    // yeni düşmanlar hep XP düşürür, geride bırakılan XP de kaybolmaz.
+    public static RecyclePickup Drop(RecyclePickup prefab, Vector2 position, int amount)
     {
-        if (prefab == null || amount <= 0) return;
+        if (prefab == null || amount <= 0) return null;
 
+        int carried = 0;
         if (active.Count >= MaxPickups)
         {
-            var target = FindMergeTarget();
-            if (target != null)
+            var farthest = FindFarthest();
+            if (farthest != null)
             {
-                target.AddExperience(amount);
-                return;
+                carried = farthest.experience;
+                farthest.consumed = true;
+                farthest.experience = 0;
+                Destroy(farthest.gameObject);
             }
         }
 
         var drop = Instantiate(prefab, position, Quaternion.identity);
         drop.Experience = amount;
+        if (carried > 0)
+            drop.AddExperience(carried);
+        return drop;
     }
 
-    private static RecyclePickup FindMergeTarget()
+    private static RecyclePickup FindFarthest()
     {
         var cam = Camera.main;
         Vector2 reference = cam != null ? (Vector2)cam.transform.position : Vector2.zero;
@@ -84,7 +93,8 @@ public class RecyclePickup : MonoBehaviour
         float farthestSqr = -1f;
         foreach (var pickup in active)
         {
-            if (pickup.IsAttracted) continue;
+            // Silinmesi kare sonuna kalan parçalar aynı karede tekrar seçilmesin (XP iki kez taşınmasın)
+            if (pickup.IsAttracted || pickup.consumed) continue;
             float sqr = ((Vector2)pickup.transform.position - reference).sqrMagnitude;
             if (sqr > farthestSqr)
             {

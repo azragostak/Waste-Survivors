@@ -26,6 +26,10 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
     [SerializeField] protected float hitFlashDuration = 0.1f;
     [Tooltip("Oyuncuya değince verdiği hasar")]
     [SerializeField, Min(0f)] protected float contactDamage = 10f;
+    [Tooltip("Büyük düşmanlar için: silahlar merkezden bu kadar uzağa da isabet eder (0 = nokta gibi küçük düşman)")]
+    [SerializeField, Min(0f)] protected float bodyRadius;
+    [Tooltip("Boss: sersemlemez, mıknatısla çekilmez, can barı ekranın üstünde gösterilir")]
+    [SerializeField] protected bool isBoss;
 
     [Tooltip("Ölünce düşen geri dönüşüm parçası (XP)")]
     [SerializeField] protected RecyclePickup recycleDrop;
@@ -40,6 +44,24 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
     public float MaxHealth => RoundToFive(maxHealth * healthMultiplier);
 
     private static float RoundToFive(float value) => Mathf.Max(5f, Mathf.Round(value / 5f) * 5f);
+
+    // Ölünce düşürdüğü recycle (Manyetik Pres öldürdüklerinin XP'sini oyuncuya çeker)
+    public RecyclePickup LastDrop { get; private set; }
+
+    // Sersemleyen düşman yerinden kıpırdamaz ve oyuncuya temas hasarı vermez
+    public bool IsStunned => Time.time < stunnedUntil;
+    // Elektrik çarpma efekti gibi görseller için
+    public SpriteRenderer BodyRenderer => spriteRenderer;
+    public Color BaseColor => baseColor;
+    public float BodyRadius => bodyRadius;
+    public bool IsBoss => isBoss;
+    private float stunnedUntil;
+    private float stunImmuneUntil;
+
+    // Boss Stampede saldırısı: oyuncuyu takip etmeden düz bir yolda yüksek hızla koşup kaybolur
+    public bool IsDashing { get; private set; }
+    private float dashUntil;
+    private Vector2 dashVelocity;
 
     protected float health;
     // Zaman ilerledikçe spawner tarafından artırılır (DifficultyTimeline)
@@ -138,9 +160,49 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
         Destroy(gameObject);
     }
 
+    // Sersemlet. Bitince 'immunity' sn boyunca tekrar sersemlemez (sürekli donup kalmasın).
+    // Sersemlediyse true döner.
+    public bool TryStun(float duration, float immunity)
+    {
+        if (!IsAlive || isBoss || Time.time < stunImmuneUntil) return false;
+
+        stunnedUntil = Time.time + duration;
+        stunImmuneUntil = stunnedUntil + immunity;
+        return true;
+    }
+
+    // Verilen hızla 'duration' sn düz koşar, sonra ödül düşürmeden kaybolur.
+    // Koşarken diğer düşmanlara ve oyuncuya takılmaz (trigger), değdiği oyuncuya yine hasar verir.
+    public void ForceDash(Vector2 velocity, float duration)
+    {
+        IsDashing = true;
+        dashVelocity = velocity;
+        dashUntil = Time.time + duration;
+        if (TryGetComponent(out Collider2D col))
+            col.isTrigger = true;
+        if (spriteRenderer != null && Mathf.Abs(velocity.x) > 0.01f)
+            spriteRenderer.flipX = velocity.x < 0f;
+    }
+
     protected virtual void FixedUpdate()
     {
         if (vanishing) return;
+        if (IsDashing)
+        {
+            if (Time.time >= dashUntil)
+            {
+                IsDashing = false;
+                Vanish();
+                return;
+            }
+            rb.velocity = dashVelocity;
+            return;
+        }
+        if (IsStunned)
+        {
+            rb.velocity = Vector2.zero;
+            return;
+        }
         UpdateMovement();
 
         // Alt sınıf ne hesaplarsa hesaplasın oyuncudan hızlı olamasın
@@ -203,7 +265,7 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
     {
         if (recycleDrop == null || experienceReward <= 0) return;
 
-        RecyclePickup.Drop(recycleDrop, transform.position, experienceReward);
+        LastDrop = RecyclePickup.Drop(recycleDrop, transform.position, experienceReward);
     }
 
     // position'a en yakın en fazla 'count' düşmanı (range içinde) yakından uzağa sıralı döndürür
@@ -218,10 +280,11 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
     public static void GetInRadius(Vector2 position, float radius, List<Enemy> results)
     {
         results.Clear();
-        float radiusSqr = radius * radius;
         foreach (var enemy in active)
         {
-            if (enemy.IsAlive && SqrDistance(enemy, position) <= radiusSqr)
+            // Büyük düşmanlara kenarından da isabet edilsin
+            float reach = radius + enemy.bodyRadius;
+            if (enemy.IsAlive && SqrDistance(enemy, position) <= reach * reach)
                 results.Add(enemy);
         }
     }

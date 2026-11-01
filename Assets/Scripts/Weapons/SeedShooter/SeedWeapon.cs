@@ -24,6 +24,16 @@ public class SeedWeapon : Weapon
     [Tooltip("Aynı hedefe birden fazla tohum atıldığında aralarındaki yayılma açısı (derece).")]
     [SerializeField] private float multiShotSpreadAngle = 10f;
 
+    [Header("Sekme (Bramble Shooter evrimi)")]
+    [Tooltip("Her tohumun vurduktan sonra kaç düşmana daha sekeceği (0 = sekmez)")]
+    [SerializeField, Min(0)] private int ricochetCount;
+    [Tooltip("Sekeceği düşmanı arama yarıçapı")]
+    [SerializeField, Min(0.5f)] private float ricochetRange = 5f;
+    [Tooltip("Verilen hasarın bu oranı kadar can çalar (0.05 = %5)")]
+    [SerializeField, Range(0f, 1f)] private float lifeSteal;
+    [Tooltip("Can çalma ile saniyede en fazla iyileşilecek can")]
+    [SerializeField, Min(0f)] private float lifeStealPerSecond = 4f;
+
     [Header("Ses")]
     [Tooltip("Tohum fırlatılınca (atış başına bir kez)")]
     [SerializeField] private AudioClip fireSound;
@@ -74,7 +84,8 @@ public class SeedWeapon : Weapon
                 dir = RotateVector(dir, sign * step * multiShotSpreadAngle);
             }
 
-            SeedProjectile.Spawn(seedPrefab, fireOrigin, dir, stats);
+            SeedProjectile.Spawn(seedPrefab, fireOrigin, dir, stats, target, ricochetCount, ricochetRange,
+                lifeSteal, lifeStealPerSecond);
         }
 
         SfxPlayer.Play(fireSound, fireVolume, minInterval: 0.06f, maxVoices: 4);

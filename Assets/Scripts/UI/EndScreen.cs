@@ -46,7 +46,7 @@ public class EndScreen : MonoBehaviour
         AddLine(band.transform, font, title, 84f, titleColor, 110f, true);
         AddLine(band.transform, font, subtitle, 30f, new Color(0.9f, 0.9f, 0.9f), 35f, false);
         AddLine(band.transform, font, stats, 28f, Color.white, -40f, true);
-        AddLine(band.transform, font, "R  -  Yeniden başla", 24f, new Color(0.7f, 0.7f, 0.7f), -125f, false);
+        AddLine(band.transform, font, "R  -  Restart", 24f, new Color(0.7f, 0.7f, 0.7f), -125f, false);
 
         StartCoroutine(FadeIn());
     }

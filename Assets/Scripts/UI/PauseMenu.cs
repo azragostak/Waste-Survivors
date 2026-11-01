@@ -5,7 +5,9 @@ using UnityEngine.EventSystems;
 
 // ESC (veya P) tuşuyla açılıp kapanan durdurma menüsü.
 // EndScreen ile aynı yatay şerit (Band) görsel dilini ve LevelUpMenu'nün çerçeveli piksel buton yapısını kullanır.
-// İçerik: Devam Et, Yeni Oyun, Çıkış, Arkaplan Müziği Aç/Kapa (Nota), Tüm Sesler Aç/Kapa (Hoparlör).
+// İçerik: Devam Et, Yeni Oyun, Çıkış, Arkaplan Müziği Aç/Kapa (Nota), Tüm Sesler Aç/Kapa (Hoparlör)
+// müzik ve efekt ses seviyesi çubukları ve müzik çalar kontrolleri
+// (önceki / geri sar / durdur-oynat / ileri sar / sonraki, bkz. MusicPlayer).
 public class PauseMenu : MonoBehaviour
 {
     public static PauseMenu Instance { get; private set; }
@@ -28,6 +30,8 @@ public class PauseMenu : MonoBehaviour
     private static readonly Color QuitAccent = new Color(1f, 0.45f, 0.40f);
     private static readonly Color ToggleOnBorder = new Color(0.48f, 0.88f, 0.56f, 0.95f);
     private static readonly Color ToggleOffBorder = new Color(0.78f, 0.36f, 0.36f, 0.90f);
+    private static readonly Color MusicAccent = new Color(0.45f, 0.72f, 1f);
+    private const float SeekSeconds = 10f;
 
     private GameObject rootPanel;
     private TMP_FontAsset font;
@@ -41,6 +45,16 @@ public class PauseMenu : MonoBehaviour
     private UnityEngine.UI.Image soundBorder;
     private UnityEngine.UI.Image soundIcon;
     private TextMeshProUGUI soundLabel;
+
+    private UnityEngine.UI.Slider musicVolumeSlider;
+    private UnityEngine.UI.Slider sfxVolumeSlider;
+    private TextMeshProUGUI musicVolumeText;
+    private TextMeshProUGUI sfxVolumeText;
+
+    private TextMeshProUGUI trackTitle;
+    private TextMeshProUGUI trackTime;
+    private TextMeshProUGUI playPauseLabel;
+    private RectTransform trackProgress;
 
     public bool IsOpen => rootPanel != null && rootPanel.activeSelf;
 
@@ -92,6 +106,9 @@ public class PauseMenu : MonoBehaviour
             else
                 Pause();
         }
+
+        if (IsOpen)
+            RefreshMusicPlayer();
     }
 
     public void Pause()
@@ -101,6 +118,7 @@ public class PauseMenu : MonoBehaviour
 
         RefreshStatsLine();
         RefreshAudioVisuals();
+        RefreshMusicPlayer();
 
         Time.timeScale = 0f;
         rootPanel.SetActive(true);
@@ -170,7 +188,7 @@ public class PauseMenu : MonoBehaviour
         float elapsed = GameSession.Instance != null ? GameSession.Instance.Elapsed : 0f;
         int kills = GameSession.Instance != null ? GameSession.Instance.Kills : 0;
         int level = experience != null ? experience.Level : 1;
-        statsText.text = $"Süre {GameSession.FormatTime(elapsed)}     Seviye {level}     Temizlenen kirlilik {kills}";
+        statsText.text = $"Time {GameSession.FormatTime(elapsed)}     Level {level}     Enemies defeated {kills}";
     }
 
     private void RefreshAudioVisuals()
@@ -182,7 +200,7 @@ public class PauseMenu : MonoBehaviour
             musicIcon.sprite = musicOn
                 ? (musicOnSprite != null ? musicOnSprite : generatedMusicOn)
                 : (musicOffSprite != null ? musicOffSprite : generatedMusicOff);
-        UIBuilder.SetText(musicLabel, musicOn ? "Müzik: Açık" : "Müzik: Kapalı");
+        UIBuilder.SetText(musicLabel, musicOn ? "Music: On" : "Music: Off");
         if (musicLabel != null)
             musicLabel.color = musicOn ? new Color(0.92f, 0.95f, 0.92f) : new Color(0.75f, 0.55f, 0.55f);
 
@@ -193,9 +211,41 @@ public class PauseMenu : MonoBehaviour
             soundIcon.sprite = soundOn
                 ? (soundOnSprite != null ? soundOnSprite : generatedSoundOn)
                 : (soundOffSprite != null ? soundOffSprite : generatedSoundOff);
-        UIBuilder.SetText(soundLabel, soundOn ? "Tüm Sesler: Açık" : "Tüm Sesler: Kapalı");
+        UIBuilder.SetText(soundLabel, soundOn ? "All Sounds: On" : "All Sounds: Off");
         if (soundLabel != null)
             soundLabel.color = soundOn ? new Color(0.92f, 0.95f, 0.92f) : new Color(0.75f, 0.55f, 0.55f);
+
+        if (musicVolumeSlider != null)
+            musicVolumeSlider.SetValueWithoutNotify(GameAudio.MusicVolume);
+        if (sfxVolumeSlider != null)
+            sfxVolumeSlider.SetValueWithoutNotify(GameAudio.SfxVolume);
+        UIBuilder.SetText(musicVolumeText, $"{GameAudio.MusicVolume * 100f:0}%");
+        UIBuilder.SetText(sfxVolumeText, $"{GameAudio.SfxVolume * 100f:0}%");
+    }
+
+    private void RefreshMusicPlayer()
+    {
+        var music = MusicPlayer.Instance;
+        bool hasMusic = music != null && music.HasTracks;
+
+        UIBuilder.SetText(trackTitle, hasMusic ? music.CurrentTitle : "No music");
+        UIBuilder.SetText(trackTime, hasMusic
+            ? $"{GameSession.FormatTime(music.CurrentTime)} / {GameSession.FormatTime(music.CurrentLength)}"
+            : "");
+        UIBuilder.SetText(playPauseLabel, hasMusic && music.IsPaused ? "PLAY" : "PAUSE");
+        if (trackProgress != null)
+        {
+            float progress = hasMusic && music.CurrentLength > 0f ? Mathf.Clamp01(music.CurrentTime / music.CurrentLength) : 0f;
+            trackProgress.anchorMax = new Vector2(progress, 1f);
+        }
+    }
+
+    private void OnMusicButton(Action action)
+    {
+        action();
+        RefreshMusicPlayer();
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(null);
     }
 
     private void BuildUI()
@@ -225,27 +275,27 @@ public class PauseMenu : MonoBehaviour
         bandRect.anchorMin = new Vector2(0f, 0.5f);
         bandRect.anchorMax = new Vector2(1f, 0.5f);
         bandRect.pivot = new Vector2(0.5f, 0.5f);
-        bandRect.sizeDelta = new Vector2(0f, 460f);
+        bandRect.sizeDelta = new Vector2(0f, 700f);
         bandRect.anchoredPosition = Vector2.zero;
 
         // Şeridin üst ve alt kenarlarına ince zarif çizgi
-        CreateHorizontalDivider(band.transform, "TopLine", 229f);
-        CreateHorizontalDivider(band.transform, "BottomLine", -229f);
+        CreateHorizontalDivider(band.transform, "TopLine", 349f);
+        CreateHorizontalDivider(band.transform, "BottomLine", -349f);
 
         // Başlık ve anlık oyun özeti (EndScreen tipografisiyle birebir uyumlu)
         var title = UIBuilder.CreateText(band.transform, "Title", font, 72f, TextAlignmentOptions.Center, bold: true);
         if (title != null)
         {
-            title.text = "DURAKLATILDI";
+            title.text = "PAUSED";
             title.color = TitleColor;
-            PlaceCentered(title.rectTransform, new Vector2(0f, 162f), new Vector2(1400f, 88f));
+            PlaceCentered(title.rectTransform, new Vector2(0f, 282f), new Vector2(1400f, 88f));
         }
 
         statsText = UIBuilder.CreateText(band.transform, "Stats", font, 26f, TextAlignmentOptions.Center, bold: true);
         if (statsText != null)
         {
             statsText.color = Color.white;
-            PlaceCentered(statsText.rectTransform, new Vector2(0f, 100f), new Vector2(1400f, 38f));
+            PlaceCentered(statsText.rectTransform, new Vector2(0f, 220f), new Vector2(1400f, 38f));
         }
 
         // Ana aksiyon butonları: Devam Et - Yeni Oyun - Çıkış
@@ -254,27 +304,107 @@ public class PauseMenu : MonoBehaviour
         float rowWidth = 3f * btnSize.x + 2f * btnSpacing;
         float startX = -rowWidth * 0.5f + btnSize.x * 0.5f;
 
-        CreateActionButton(band.transform, "ResumeButton", "DEVAM ET", ResumeAccent,
-            new Vector2(startX, 24f), btnSize, Resume);
-        CreateActionButton(band.transform, "NewGameButton", "YENİ OYUN", RestartAccent,
-            new Vector2(startX + (btnSize.x + btnSpacing), 24f), btnSize, OnNewGameClicked);
-        CreateActionButton(band.transform, "QuitButton", "ÇIKIŞ", QuitAccent,
-            new Vector2(startX + 2f * (btnSize.x + btnSpacing), 24f), btnSize, OnQuitClicked);
+        CreateActionButton(band.transform, "ResumeButton", "RESUME", ResumeAccent,
+            new Vector2(startX, 144f), btnSize, Resume);
+        CreateActionButton(band.transform, "NewGameButton", "NEW GAME", RestartAccent,
+            new Vector2(startX + (btnSize.x + btnSpacing), 144f), btnSize, OnNewGameClicked);
+        CreateActionButton(band.transform, "QuitButton", "QUIT", QuitAccent,
+            new Vector2(startX + 2f * (btnSize.x + btnSpacing), 144f), btnSize, OnQuitClicked);
 
         // Ses aç/kapa ikon butonları: Sol = Arkaplan Müziği (Nota), Sağ = Tüm Sesler (Hoparlör)
-        CreateAudioToggle(band.transform, "MusicToggle", new Vector2(-115f, -74f),
+        CreateAudioToggle(band.transform, "MusicToggle", new Vector2(-115f, 46f),
             out musicBorder, out musicIcon, out musicLabel, OnToggleMusicClicked);
-        CreateAudioToggle(band.transform, "SoundToggle", new Vector2(115f, -74f),
+        CreateAudioToggle(band.transform, "SoundToggle", new Vector2(115f, 46f),
             out soundBorder, out soundIcon, out soundLabel, OnToggleSoundClicked);
+
+        // Ses seviyeleri: sol = müzik, sağ = efektler
+        musicVolumeSlider = CreateVolumeRow(band.transform, "MusicVolume", "MUSIC", -240f, -40f,
+            GameAudio.MusicVolume, GameAudio.SetMusicVolume, out musicVolumeText);
+        sfxVolumeSlider = CreateVolumeRow(band.transform, "SfxVolume", "EFFECTS", 240f, -40f,
+            GameAudio.SfxVolume, GameAudio.SetSfxVolume, out sfxVolumeText);
+
+        BuildMusicPlayer(band.transform);
 
         // Alt kısayol ipucu (EndScreen'deki "R - Yeniden başla" satırıyla aynı stil)
         var hint = UIBuilder.CreateText(band.transform, "Hint", font, 22f, TextAlignmentOptions.Center, bold: false);
         if (hint != null)
         {
-            hint.text = "ESC  -  Devam et";
+            hint.text = "ESC  -  Resume";
             hint.color = new Color(0.7f, 0.7f, 0.7f);
-            PlaceCentered(hint.rectTransform, new Vector2(0f, -184f), new Vector2(800f, 32f));
+            PlaceCentered(hint.rectTransform, new Vector2(0f, -310f), new Vector2(800f, 32f));
         }
+    }
+
+    // Çalan şarkı, ilerleme çubuğu, süre ve kontroller (MusicPlayer)
+    private void BuildMusicPlayer(Transform band)
+    {
+        trackTitle = UIBuilder.CreateText(band, "TrackTitle", font, 24f, TextAlignmentOptions.Center, bold: true);
+        if (trackTitle != null)
+        {
+            trackTitle.color = MusicAccent;
+            PlaceCentered(trackTitle.rectTransform, new Vector2(0f, -112f), new Vector2(1200f, 32f));
+        }
+
+        var bar = UIBuilder.CreateImage(band, "TrackBar", new Color(1f, 1f, 1f, 0.15f));
+        PlaceCentered(bar.rectTransform, new Vector2(0f, -140f), new Vector2(640f, 8f));
+        trackProgress = UIBuilder.CreateImage(bar.transform, "Fill", MusicAccent).rectTransform;
+        trackProgress.anchorMin = Vector2.zero;
+        trackProgress.anchorMax = new Vector2(0f, 1f);
+        trackProgress.offsetMin = trackProgress.offsetMax = Vector2.zero;
+
+        trackTime = UIBuilder.CreateText(band, "TrackTime", font, 19f, TextAlignmentOptions.Center, bold: false);
+        if (trackTime != null)
+        {
+            trackTime.color = new Color(0.75f, 0.75f, 0.75f);
+            PlaceCentered(trackTime.rectTransform, new Vector2(0f, -162f), new Vector2(400f, 26f));
+        }
+
+        string[] labels = { "PREV", $"-{SeekSeconds:0}S", "PAUSE", $"+{SeekSeconds:0}S", "NEXT" };
+        Action[] actions =
+        {
+            () => MusicPlayer.Instance?.Previous(),
+            () => MusicPlayer.Instance?.Seek(-SeekSeconds),
+            () => MusicPlayer.Instance?.TogglePause(),
+            () => MusicPlayer.Instance?.Seek(SeekSeconds),
+            () => MusicPlayer.Instance?.Next(),
+        };
+        var size = new Vector2(130f, 50f);
+        const float spacing = 14f;
+        float rowWidth = labels.Length * size.x + (labels.Length - 1) * spacing;
+        for (int i = 0; i < labels.Length; i++)
+        {
+            int index = i;
+            float x = -rowWidth * 0.5f + size.x * 0.5f + i * (size.x + spacing);
+            var label = CreateActionButton(band, $"Music{i}", labels[i], MusicAccent, new Vector2(x, -216f), size,
+                () => OnMusicButton(actions[index]), fontSize: 20f);
+            if (i == 2) playPauseLabel = label;
+        }
+    }
+
+    // Etiket + kaydırma çubuğu + yüzde: [MUSIC  =====o----  70%]
+    private UnityEngine.UI.Slider CreateVolumeRow(Transform parent, string name, string caption, float centerX, float y,
+        float value, Action<float> onChanged, out TextMeshProUGUI valueText)
+    {
+        var label = UIBuilder.CreateText(parent, name + "Label", font, 20f, TextAlignmentOptions.MidlineRight, bold: true);
+        if (label != null)
+        {
+            label.text = caption;
+            label.color = new Color(0.85f, 0.85f, 0.85f);
+            PlaceCentered(label.rectTransform, new Vector2(centerX - 175f, y), new Vector2(110f, 30f));
+        }
+
+        var slider = UIBuilder.CreateSlider(parent, name, MusicAccent, value, v =>
+        {
+            onChanged(v);
+            if (EventSystem.current != null)
+                EventSystem.current.SetSelectedGameObject(null);
+        });
+        PlaceCentered((RectTransform)slider.transform, new Vector2(centerX + 5f, y), new Vector2(220f, 28f));
+
+        valueText = UIBuilder.CreateText(parent, name + "Value", font, 20f, TextAlignmentOptions.MidlineLeft, bold: false);
+        if (valueText != null)
+            PlaceCentered(valueText.rectTransform, new Vector2(centerX + 160f, y), new Vector2(70f, 30f));
+        return slider;
     }
 
     private static void CreateHorizontalDivider(Transform parent, string name, float y)
@@ -288,8 +418,8 @@ public class PauseMenu : MonoBehaviour
         rect.anchoredPosition = new Vector2(0f, y);
     }
 
-    private void CreateActionButton(Transform parent, string name, string label, Color accent,
-        Vector2 position, Vector2 size, Action onClick)
+    private TextMeshProUGUI CreateActionButton(Transform parent, string name, string label, Color accent,
+        Vector2 position, Vector2 size, Action onClick, float fontSize = 26f)
     {
         var border = UIBuilder.CreateImage(parent, name, accent, raycastTarget: true);
         PlaceCentered(border.rectTransform, position, size);
@@ -308,13 +438,14 @@ public class PauseMenu : MonoBehaviour
         var inner = UIBuilder.CreateImage(border.transform, "Background", new Color(0.09f, 0.09f, 0.12f, 0.94f));
         UIBuilder.Stretch(inner.rectTransform, 3f);
 
-        var text = UIBuilder.CreateText(inner.transform, "Label", font, 26f, TextAlignmentOptions.Center, bold: true);
+        var text = UIBuilder.CreateText(inner.transform, "Label", font, fontSize, TextAlignmentOptions.Center, bold: true);
         if (text != null)
         {
             text.text = label;
             text.color = Color.white;
             UIBuilder.Stretch(text.rectTransform);
         }
+        return text;
     }
 
     private void CreateAudioToggle(Transform parent, string name, Vector2 position,

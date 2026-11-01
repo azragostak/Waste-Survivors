@@ -43,6 +43,49 @@ public static class UIBuilder
         if (text != null) text.text = value;
     }
 
+    // 0-1 arası yatay kaydırma çubuğu (arka plan, dolgu ve tutamaç)
+    public static UnityEngine.UI.Slider CreateSlider(Transform parent, string name, Color fillColor,
+        float value, System.Action<float> onChanged)
+    {
+        var root = CreateRect(parent, name);
+        var slider = root.gameObject.AddComponent<UnityEngine.UI.Slider>();
+
+        var background = CreateImage(root, "Background", new Color(1f, 1f, 1f, 0.15f));
+        background.rectTransform.anchorMin = new Vector2(0f, 0.35f);
+        background.rectTransform.anchorMax = new Vector2(1f, 0.65f);
+        background.rectTransform.offsetMin = background.rectTransform.offsetMax = Vector2.zero;
+
+        var fillArea = CreateRect(root, "FillArea");
+        fillArea.anchorMin = new Vector2(0f, 0.35f);
+        fillArea.anchorMax = new Vector2(1f, 0.65f);
+        fillArea.offsetMin = fillArea.offsetMax = Vector2.zero;
+        var fill = CreateImage(fillArea, "Fill", fillColor);
+        fill.rectTransform.anchorMin = Vector2.zero;
+        fill.rectTransform.anchorMax = new Vector2(0f, 1f);
+        fill.rectTransform.offsetMin = fill.rectTransform.offsetMax = Vector2.zero;
+
+        var handleArea = CreateRect(root, "HandleArea");
+        Stretch(handleArea);
+        handleArea.offsetMin = new Vector2(8f, 0f);
+        handleArea.offsetMax = new Vector2(-8f, 0f);
+        var handle = CreateImage(handleArea, "Handle", Color.white, raycastTarget: true);
+        handle.rectTransform.sizeDelta = new Vector2(16f, 0f);
+
+        slider.fillRect = fill.rectTransform;
+        slider.handleRect = handle.rectTransform;
+        slider.targetGraphic = handle;
+        slider.direction = UnityEngine.UI.Slider.Direction.LeftToRight;
+        slider.minValue = 0f;
+        slider.maxValue = 1f;
+        slider.SetValueWithoutNotify(value);
+        if (onChanged != null)
+            slider.onValueChanged.AddListener(v => onChanged(v));
+
+        // Arka plana tıklayınca da değer değişsin
+        background.raycastTarget = true;
+        return slider;
+    }
+
     public static void Stretch(RectTransform rect, float inset = 0f)
     {
         rect.anchorMin = Vector2.zero;

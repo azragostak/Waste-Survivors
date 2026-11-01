@@ -113,6 +113,8 @@ public class BarrelEnemy : Enemy
 
     private void UpdateRollVisual()
     {
+        if (IsStunned) return;
+
         // Sadece yatay hız animasyonu ilerletir: sağa giderken ileri, sola giderken geri.
         // Yön değiştirirken hız düştükçe animasyon da yavaşlar, durur ve ters yöne başlar.
         rollPhase = Mathf.Repeat(rollPhase + currentVelocityX * Time.deltaTime / rollDistancePerCycle, 1f);

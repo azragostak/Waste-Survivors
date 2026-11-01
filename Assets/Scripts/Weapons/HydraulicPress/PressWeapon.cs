@@ -28,6 +28,8 @@ public class PressWeapon : Weapon
     [SerializeField, Min(0f)] private float magnetDuration = 0.5f;
     [Tooltip("Çekim sertliği: saniyede kalan mesafenin ne kadarı kapansın (büyüdükçe daha sert)")]
     [SerializeField, Min(0f)] private float magnetPullRate = 3.5f;
+    [Tooltip("Ezilerek ölen düşmanların düşürdüğü XP oyuncuya uçsun")]
+    [SerializeField] private bool collectKillExperience;
 
     private readonly List<Enemy> targets = new();
 
@@ -66,7 +68,7 @@ public class PressWeapon : Weapon
 
             var drop = Instantiate(pressPrefab, targetPosition, Quaternion.identity);
             if (magnetic)
-                drop.EnableMagnet(stats.area * magnetRadiusMultiplier, magnetDuration, magnetPullRate);
+                drop.EnableMagnet(stats.area * magnetRadiusMultiplier, magnetDuration, magnetPullRate, collectKillExperience);
             drop.Drop(targetPosition, stats, i * dropStagger);
         }
 

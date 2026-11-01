@@ -31,6 +31,7 @@ public class EnemySpawner : MonoBehaviour
     private float swarmTimer;
     private float relocateTimer;
     private readonly HashSet<DifficultyTimeline.RingEvent> firedRings = new();
+    private bool bossSpawned;
 
     private float Elapsed => GameSession.Instance != null ? GameSession.Instance.Elapsed : Time.timeSinceLevelLoad;
 
@@ -51,6 +52,13 @@ public class EnemySpawner : MonoBehaviour
     {
         if (player == null || timeline == null || timeline.phases.Count == 0) return;
         if (GameSession.Instance != null && GameSession.Instance.IsOver) return;
+
+        // Boss evresi: başka düşman doğmaz, boss bir kez gelir
+        if (GameSession.Instance != null && GameSession.Instance.IsBossPhase)
+        {
+            SpawnBossOnce();
+            return;
+        }
 
         float t = Elapsed;
         int phaseIndex = timeline.GetPhaseIndex(t);
@@ -117,6 +125,23 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    private void SpawnBossOnce()
+    {
+        if (bossSpawned) return;
+        bossSpawned = true;
+
+        if (timeline.boss == null)
+        {
+            // Boss tanımlı değilse eskisi gibi doğrudan final
+            GameSession.Instance.TriggerFinale();
+            return;
+        }
+
+        // Oyuncunun yürüdüğü yönden, ekranın hemen dışından gelsin
+        var boss = Instantiate(timeline.boss, GetSpawnPosition(aheadOfPlayer: true), Quaternion.identity);
+        boss.SetTarget(player);
+    }
+
     private void RelocateStragglers()
     {
         relocateTimer -= Time.deltaTime;
@@ -129,7 +154,7 @@ public class EnemySpawner : MonoBehaviour
 
         foreach (var enemy in Enemy.Active)
         {
-            if (!enemy.IsAlive) continue;
+            if (!enemy.IsAlive || enemy.IsBoss) continue;
             if (((Vector2)enemy.transform.position - playerPos).sqrMagnitude <= limitSqr) continue;
 
             Vector2 position = GetSpawnPosition(aheadOfPlayer: true);
