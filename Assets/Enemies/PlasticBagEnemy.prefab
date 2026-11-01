@@ -161,10 +161,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be5a380992b24bb5b19cfcabe633ceab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 5
+  maxHealth: 10
   moveSpeed: 1.5
   maxSpeed: 1.9
-  spawnWeight: 1
   hitFlashColor: {r: 1, g: 0.4, b: 0.4, a: 1}
   hitFlashDuration: 0.1
   contactDamage: 5

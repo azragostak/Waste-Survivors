@@ -13,13 +13,15 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
     // UI için: GameHUD bunlarla can barı takar ve hasar sayısı gösterir
     public static event Action<Enemy> Spawned;
     public static event Action<Enemy, float> Damaged;
+    // Öldürülen her düşman (kaybolanlar sayılmaz); skor için
+    public static event Action<Enemy> Killed;
 
     [SerializeField] protected float maxHealth = 10f;
+    [Tooltip("Zamanla artan düşman canından ne kadar etkilensin (0 = can hep sabit, 1 = tam)")]
+    [SerializeField, Range(0f, 1f)] protected float healthScaling = 1f;
     [SerializeField] protected float moveSpeed = 1.5f;
     [Tooltip("Esinti, çapraz hareket vs. dahil hiçbir durumda geçemeyeceği hız (oyuncu hızının altında tut)")]
     [SerializeField] protected float maxSpeed = 1.9f;
-    [Tooltip("Spawner'da seçilme ağırlığı (2 = 1'e göre iki kat sık çıkar)")]
-    [SerializeField, Min(0f)] protected float spawnWeight = 1f;
     [SerializeField] protected Color hitFlashColor = new Color(1f, 0.4f, 0.4f);
     [SerializeField] protected float hitFlashDuration = 0.1f;
     [Tooltip("Oyuncuya değince verdiği hasar")]
@@ -32,13 +34,16 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
     // XP gem düşürme, skor vs. için
     public event Action<Enemy> Died;
 
-    public bool IsAlive => health > 0f;
-    public float SpawnWeight => spawnWeight;
-    public float ContactDamage => contactDamage;
+    public bool IsAlive => health > 0f && !vanishing;
+    public float ContactDamage => contactDamage * damageMultiplier;
     public float CurrentHealth => Mathf.Max(0f, health);
-    public float MaxHealth => maxHealth;
+    public float MaxHealth => maxHealth * healthMultiplier;
 
     protected float health;
+    // Zaman ilerledikçe spawner tarafından artırılır (DifficultyTimeline)
+    private float healthMultiplier = 1f;
+    private float damageMultiplier = 1f;
+    private bool vanishing;
     protected Transform target;
     protected Rigidbody2D rb;
     protected SpriteRenderer spriteRenderer;
@@ -51,6 +56,7 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
         active.Clear();
         Spawned = null;
         Damaged = null;
+        Killed = null;
     }
 
     protected virtual void Awake()
@@ -87,8 +93,52 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
 
     public void SetTarget(Transform newTarget) => target = newTarget;
 
+    // Spawner doğurduktan hemen sonra çağırır: oyun ilerledikçe düşmanlar daha dayanıklı ve acıtıcı olur
+    public void ApplyDifficulty(float healthScale, float damageScale)
+    {
+        healthMultiplier = Mathf.Max(0.1f, 1f + (healthScale - 1f) * healthScaling);
+        damageMultiplier = Mathf.Max(0.1f, damageScale);
+        health = MaxHealth;
+    }
+
+    // Final: ödül düşürmeden küçülüp kaybolur
+    public void Vanish(float duration = 0.35f)
+    {
+        if (vanishing) return;
+        vanishing = true;
+
+        rb.velocity = Vector2.zero;
+        rb.simulated = false;
+        if (flashRoutine != null) StopCoroutine(flashRoutine);
+        StartCoroutine(VanishRoutine(duration));
+    }
+
+    private IEnumerator VanishRoutine(float duration)
+    {
+        Vector3 startScale = transform.localScale;
+        Color startColor = spriteRenderer != null ? baseColor : Color.white;
+
+        for (float t = 0f; t < duration; t += Time.deltaTime)
+        {
+            float p = t / duration;
+            // Önce hafifçe şişip beyazlaşır, sonra küçülerek söner
+            float scale = p < 0.3f ? Mathf.Lerp(1f, 1.2f, p / 0.3f) : Mathf.Lerp(1.2f, 0f, (p - 0.3f) / 0.7f);
+            transform.localScale = startScale * scale;
+            if (spriteRenderer != null)
+            {
+                Color color = Color.Lerp(startColor, Color.white, Mathf.Min(1f, p * 3f));
+                color.a = 1f - p;
+                spriteRenderer.color = color;
+            }
+            yield return null;
+        }
+
+        Destroy(gameObject);
+    }
+
     protected virtual void FixedUpdate()
     {
+        if (vanishing) return;
         UpdateMovement();
 
         // Alt sınıf ne hesaplarsa hesaplasın oyuncudan hızlı olamasın
@@ -143,6 +193,7 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
     {
         DropRecycle();
         Died?.Invoke(this);
+        Killed?.Invoke(this);
         Destroy(gameObject);
     }
 
@@ -150,8 +201,7 @@ public class Enemy : MonoBehaviour, IDamageable, IHealth
     {
         if (recycleDrop == null || experienceReward <= 0) return;
 
-        var drop = Instantiate(recycleDrop, transform.position, Quaternion.identity);
-        drop.Experience = experienceReward;
+        RecyclePickup.Drop(recycleDrop, transform.position, experienceReward);
     }
 
     // position'a en yakın en fazla 'count' düşmanı (range içinde) yakından uzağa sıralı döndürür

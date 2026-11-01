@@ -46,6 +46,8 @@ public class InfiniteGroundLooper : MonoBehaviour
     private int lastMinChunkY = int.MaxValue;
     private int lastMaxChunkY = int.MinValue;
     private bool initialized;
+    // Final: bundan sonra yüklenen chunk'larda kirli katman olmaz
+    private bool allClean;
 
     public static InfiniteGroundLooper EnsureAttached(Tilemap dirtyMap, GroundCleaner groundCleaner)
     {
@@ -162,6 +164,14 @@ public class InfiniteGroundLooper : MonoBehaviour
     {
         if (!initialized) return;
         RefreshChunks(force: false);
+    }
+
+    // Final: dünya tamamen temizlendi; ekran dışındaki ve ileride yüklenecek chunk'lar da temiz olsun
+    public void SetAllClean()
+    {
+        allClean = true;
+        if (dirtyTilemap != null)
+            dirtyTilemap.ClearAllTiles();
     }
 
     private void HandleTileCleaned(Vector3Int cell)
@@ -283,6 +293,12 @@ public class InfiniteGroundLooper : MonoBehaviour
 
                 if (hasDirty)
                 {
+                    if (allClean)
+                    {
+                        dirtyChunkBuffer[bufferIndex] = null;
+                        continue;
+                    }
+
                     bool alreadyCleaned = cleanedCells.Contains(new Vector2Int(wx, wy)) ||
                                           (cleaner != null && cleaner.IsCellFading(new Vector3Int(wx, wy, 0)));
                     dirtyChunkBuffer[bufferIndex] = alreadyCleaned ? null : dirtyTemplate[templateIndex];

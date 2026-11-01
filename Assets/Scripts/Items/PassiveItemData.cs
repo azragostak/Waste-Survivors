@@ -4,7 +4,7 @@ using UnityEngine;
 public enum PassiveStat
 {
     Damage,            // tüm silahların hasarı (%)
-    CooldownReduction, // tüm silahların bekleme süresi (%) azalır
+    CooldownReduction, // tüm silahların saldırı hızı artar (bekleme süresi kısalır, türbin hızlı döner)
     Area,              // tüm silahların etki alanı (%)
     MoveSpeed,         // hareket hızı (%)
     MaxHealth,         // maksimum can (düz sayı)
@@ -37,7 +37,7 @@ public class PassiveItemData : ScriptableObject
         return stat switch
         {
             PassiveStat.Damage => $"+%{value * 100f:0} hasar",
-            PassiveStat.CooldownReduction => $"-%{value * 100f:0} silah bekleme süresi",
+            PassiveStat.CooldownReduction => $"+%{(1f / Mathf.Max(0.3f, 1f - value) - 1f) * 100f:0} saldırı hızı",
             PassiveStat.Area => $"+%{value * 100f:0} silah alanı",
             PassiveStat.MoveSpeed => $"+%{value * 100f:0} hareket hızı",
             PassiveStat.MaxHealth => $"+{value:0} maksimum can",

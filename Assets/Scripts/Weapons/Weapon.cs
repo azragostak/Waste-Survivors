@@ -10,7 +10,8 @@ public abstract class Weapon : MonoBehaviour
 
     protected Transform Owner { get; private set; }
 
-    // Stat okumanın tek noktası: pasif item bonusları (hasar %, alan %, bekleme süresi %) burada uygulanır.
+    // Stat okumanın tek noktası: pasif item bonusları (hasar %, alan %, saldırı hızı) burada uygulanır.
+    // Her okumada o anki itemlere bakılır; item silahtan önce ya da sonra alınmış olsun, etkisi hep geçerlidir.
     protected WeaponStats Stats
     {
         get
@@ -18,11 +19,17 @@ public abstract class Weapon : MonoBehaviour
             var stats = Data.GetStats(Level);
             stats.damage *= 1f + PlayerPassives.GetBonus(Owner, PassiveStat.Damage);
             stats.area *= 1f + PlayerPassives.GetBonus(Owner, PassiveStat.Area);
-            // Bekleme süresi en fazla %70 kısalabilir
-            stats.cooldown *= Mathf.Max(0.3f, 1f - PlayerPassives.GetBonus(Owner, PassiveStat.CooldownReduction));
+            // Saldırı hızı: bekleme süresi ve aynı düşmana tekrar vurma aralığı birlikte kısalır
+            float attackInterval = 1f / AttackSpeedMultiplier;
+            stats.cooldown *= attackInterval;
+            stats.hitInterval *= attackInterval;
             return stats;
         }
     }
+
+    // Güneş Paneli gibi itemlerden gelen saldırı hızı çarpanı (1 = bonus yok). Bekleme süresi en fazla %70 kısalabilir.
+    protected float AttackSpeedMultiplier =>
+        1f / Mathf.Max(0.3f, 1f - PlayerPassives.GetBonus(Owner, PassiveStat.CooldownReduction));
 
     private float cooldownTimer;
 

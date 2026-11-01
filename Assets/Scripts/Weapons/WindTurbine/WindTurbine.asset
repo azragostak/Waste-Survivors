@@ -1,0 +1,121 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 871d8a994d66447199bc270855bbd8a7, type: 3}
+  m_Name: WindTurbine
+  m_EditorClassIdentifier: 
+  displayName: "R\xFCzgar T\xFCrbini"
+  description: "Etraf\u0131nda t\xFCrbin kanatlar\u0131 d\xF6ner, \xE7arpt\u0131\u011F\u0131
+    her d\xFC\u015Fmana hasar verir. Geli\u015Ftik\xE7e kanat say\u0131s\u0131, hasar
+    ve d\xF6n\xFC\u015F h\u0131z\u0131 artar."
+  icon: {fileID: 1989680995971007737, guid: 607d032523642f9499a32875145770c1, type: 3}
+  weaponPrefab: {fileID: 500200003, guid: eda423cf44344bf5be491bbe58c081b4, type: 3}
+  levels:
+  - upgradeDescription: "Etraf\u0131nda d\u00F6nen 2 t\u00FCrbin kanad\u0131, \u00E7arpt\u0131\u011F\u0131 her d\u00FC\u015Fmana hasar verir."
+    stats:
+      damage: 4.5
+      cooldown: 1
+      area: 1
+      amount: 2
+      duration: 0
+      speed: 240
+      hitInterval: 0.4
+      range: 0
+  - upgradeDescription: "D\u00F6n\u00FC\u015F h\u0131z\u0131 +%20"
+    stats:
+      damage: 4.5
+      cooldown: 1
+      area: 1
+      amount: 2
+      duration: 0
+      speed: 288
+      hitInterval: 0.4
+      range: 0
+  - upgradeDescription: "+1 kanat"
+    stats:
+      damage: 4.5
+      cooldown: 1
+      area: 1
+      amount: 3
+      duration: 0
+      speed: 288
+      hitInterval: 0.4
+      range: 0
+  - upgradeDescription: "Hasar +%31"
+    stats:
+      damage: 5.9
+      cooldown: 1
+      area: 1
+      amount: 3
+      duration: 0
+      speed: 288
+      hitInterval: 0.4
+      range: 0
+  - upgradeDescription: "Hasar +%22"
+    stats:
+      damage: 7.2
+      cooldown: 1
+      area: 1
+      amount: 3
+      duration: 0
+      speed: 288
+      hitInterval: 0.4
+      range: 0
+  - upgradeDescription: "Kanatlar %15 daha uzun, hasar +%8"
+    stats:
+      damage: 7.8
+      cooldown: 1
+      area: 1.15
+      amount: 3
+      duration: 0
+      speed: 288
+      hitInterval: 0.4
+      range: 0
+  - upgradeDescription: "D\u00F6n\u00FC\u015F h\u0131z\u0131 +%20, hasar +%9"
+    stats:
+      damage: 8.5
+      cooldown: 1
+      area: 1.15
+      amount: 3
+      duration: 0
+      speed: 346
+      hitInterval: 0.4
+      range: 0
+  - upgradeDescription: "+1 kanat, hasar +%7"
+    stats:
+      damage: 9.1
+      cooldown: 1
+      area: 1.15
+      amount: 4
+      duration: 0
+      speed: 346
+      hitInterval: 0.4
+      range: 0
+  - upgradeDescription: "Hasar +%14, ayn\u0131 d\u00FC\u015Fmana daha s\u0131k vurur"
+    stats:
+      damage: 10.4
+      cooldown: 1
+      area: 1.15
+      amount: 4
+      duration: 0
+      speed: 346
+      hitInterval: 0.33
+      range: 0
+  - upgradeDescription: "MAX: +1 kanat, hasar +%18, d\u00F6n\u00FC\u015F h\u0131z\u0131 +%20"
+    stats:
+      damage: 12.3
+      cooldown: 1
+      area: 1.15
+      amount: 5
+      duration: 0
+      speed: 415
+      hitInterval: 0.33
+      range: 0

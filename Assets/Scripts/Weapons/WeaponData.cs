@@ -16,6 +16,12 @@ public class WeaponData : ScriptableObject
     [Tooltip("Oyuncuya eklenecek, Weapon component'i olan prefab")]
     public Weapon weaponPrefab;
 
+    [Header("Evrim")]
+    [Tooltip("Silah maksimum seviyedeyken ve Evolution Requirement elindeyken level-up'ta bu silaha evrimleşebilir")]
+    public WeaponData evolution;
+    [Tooltip("Evrim için sahip olunması gereken pasif item (seviyesi önemsiz)")]
+    public PassiveItemData evolutionRequirement;
+
     [Header("Seviyeler (1. eleman = Level 1)")]
     public List<WeaponLevel> levels = new() { new WeaponLevel() };
 

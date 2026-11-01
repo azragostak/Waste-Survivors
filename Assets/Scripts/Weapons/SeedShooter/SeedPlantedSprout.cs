@@ -47,6 +47,43 @@ public class SeedPlantedSprout : MonoBehaviour
         registeredSheets = null;
     }
 
+    public static bool HasPlantSheets => registeredSheets != null && registeredSheets.Length > 0;
+
+    public static void RegisterSheets(Texture2D[] plantSheets, float fps, float baseScale)
+    {
+        if (plantSheets == null || plantSheets.Length == 0) return;
+        registeredSheets = plantSheets;
+        registeredFps = Mathf.Max(1f, fps);
+        registeredBaseScale = Mathf.Max(0.1f, baseScale);
+    }
+
+    // Final: verilen noktaya bitki eker. ignoreCap ile 300 sınırını aşar (mevcut bitkiler yerinden alınmaz).
+    public static bool PlantAt(Vector2 position, bool ignoreCap)
+    {
+        Texture2D sheet = PickRandomSheet(registeredSheets);
+        if (sheet == null) return false;
+
+        Sprite[] orderedFrames = GetOrCreateOrderedFrames(sheet);
+        if (orderedFrames == null || orderedFrames.Length == 0) return false;
+
+        SpawnPlant(position, orderedFrames, registeredFps, registeredBaseScale, ignoreCap);
+        return true;
+    }
+
+    public static int CountPlantsNear(Vector2 position, float radius)
+    {
+        float radiusSqr = radius * radius;
+        int count = 0;
+        foreach (var sprout in activeRing)
+        {
+            // Büyümesi biten bitkilerin component'i kapanır ama objesi sahnede kalır
+            if (sprout != null && sprout.gameObject.activeSelf &&
+                ((Vector2)sprout.transform.position - position).sqrMagnitude <= radiusSqr)
+                count++;
+        }
+        return count;
+    }
+
     public static void MarkEnemy(Enemy enemy, Texture2D[] plantSheets, float fps, float baseScale)
     {
         if (enemy == null || !enemy.IsAlive || plantSheets == null || plantSheets.Length == 0)
@@ -139,7 +176,7 @@ public class SeedPlantedSprout : MonoBehaviour
         return ordered;
     }
 
-    private static void SpawnPlant(Vector2 position, Sprite[] orderedFrames, float fps, float baseScale)
+    private static void SpawnPlant(Vector2 position, Sprite[] orderedFrames, float fps, float baseScale, bool ignoreCap = false)
     {
         while (activeRing.Count > 0 && activeRing.Peek() == null)
             activeRing.Dequeue();
@@ -148,7 +185,7 @@ public class SeedPlantedSprout : MonoBehaviour
         while (inactivePool.Count > 0 && sprout == null)
             sprout = inactivePool.Pop();
 
-        if (sprout == null && activeRing.Count >= MaxActivePlants)
+        if (sprout == null && !ignoreCap && activeRing.Count >= MaxActivePlants)
             sprout = activeRing.Dequeue();
 
         if (sprout == null)

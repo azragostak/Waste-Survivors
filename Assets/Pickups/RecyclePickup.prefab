@@ -101,3 +101,5 @@ MonoBehaviour:
   startSpeed: 2
   acceleration: 25
   collectDistance: 0.2
+  collectSound: {fileID: 8300000, guid: 89eb5515deabe5e439d2b50f1ad35d80, type: 3}
+  collectVolume: 0.4

@@ -49,6 +49,8 @@ public class GameHUD : MonoBehaviour
 
     private RectTransform xpFill;
     private TextMeshProUGUI levelText;
+    private TextMeshProUGUI timerText;
+    private int shownSecond = -1;
     private readonly List<Slot> weaponSlots = new();
     private readonly List<Slot> passiveSlots = new();
 
@@ -96,6 +98,7 @@ public class GameHUD : MonoBehaviour
         {
             weapons.WeaponAdded += _ => RefreshWeapons();
             weapons.WeaponLeveledUp += _ => RefreshWeapons();
+            weapons.WeaponEvolved += _ => RefreshWeapons();
         }
         RefreshWeapons();
 
@@ -211,6 +214,25 @@ public class GameHUD : MonoBehaviour
 
         if (experience == null)
             background.gameObject.SetActive(false);
+
+        // XP barının altında, ortada geçen süre
+        timerText = UIBuilder.CreateText(canvas, "Timer", font, 36f, TextAlignmentOptions.Center);
+        if (timerText != null)
+            UIBuilder.TopStrip(timerText.rectTransform, xpBarHeight + 6f, 46f);
+    }
+
+    void Update()
+    {
+        var session = GameSession.Instance;
+        if (timerText == null || session == null) return;
+
+        int second = Mathf.FloorToInt(Mathf.Min(session.Elapsed, GameSession.RunDuration));
+        if (second == shownSecond) return;
+        shownSecond = second;
+
+        timerText.text = GameSession.FormatTime(second);
+        // Son dakika: finale yaklaşıldığını hissettir
+        timerText.color = session.Remaining <= 60f && !session.IsOver ? new Color(1f, 0.85f, 0.35f) : Color.white;
     }
 
     // Sol üstte, XP barının altında: üst sıra silahlar, alt sıra pasif itemler

@@ -65,26 +65,40 @@ public class GroundCleaner : MonoBehaviour
 
     private void MarkCellsInRadius()
     {
-        Vector2 position = transform.position;
+        float radius = cleanRadius * (1f + PlayerPassives.GetBonus(this, PassiveStat.CleanRadius));
+        MarkCells(transform.position, radius, 0f);
+    }
+
+    // Final: center etrafında innerRadius ile radius arasındaki halkayı temizler.
+    // Büyüyen bir dalga için her karede önceki yarıçap innerRadius olarak verilir, içerisi tekrar taranmaz.
+    public void CleanRing(Vector2 center, float innerRadius, float radius)
+    {
+        if (dirtyTilemap == null) return;
+        MarkCells(center, radius, innerRadius);
+    }
+
+    private void MarkCells(Vector2 position, float radius, float innerRadius)
+    {
         Vector3Int center = dirtyTilemap.WorldToCell(position);
         Vector3 cellSize = dirtyTilemap.layoutGrid.cellSize;
-        float radius = cleanRadius * (1f + PlayerPassives.GetBonus(this, PassiveStat.CleanRadius));
         int rangeX = Mathf.CeilToInt(radius / Mathf.Max(0.01f, cellSize.x)) + 1;
         int rangeY = Mathf.CeilToInt(radius / Mathf.Max(0.01f, cellSize.y)) + 1;
         float radiusSqr = radius * radius;
+        float innerSqr = innerRadius > 0f ? innerRadius * innerRadius : -1f;
 
         for (int y = -rangeY; y <= rangeY; y++)
         {
             for (int x = -rangeX; x <= rangeX; x++)
             {
                 var cell = new Vector3Int(center.x + x, center.y + y, center.z);
+
+                Vector2 cellCenter = dirtyTilemap.GetCellCenterWorld(cell);
+                float distanceSqr = (cellCenter - position).sqrMagnitude;
+                if (distanceSqr > radiusSqr || distanceSqr < innerSqr) continue;
                 if (fading.ContainsKey(cell)) continue;
 
                 TileBase tile = dirtyTilemap.GetTile(cell);
-                if (tile == null || tile.name == "Ground_2") continue;
-
-                Vector2 cellCenter = dirtyTilemap.GetCellCenterWorld(cell);
-                if ((cellCenter - position).sqrMagnitude > radiusSqr) continue;
+                if (tile == null) continue;
 
                 // Tile asset'leri rengi kilitler; hücre bazında açmazsak SetColor çalışmaz
                 dirtyTilemap.SetTileFlags(cell, TileFlags.None);

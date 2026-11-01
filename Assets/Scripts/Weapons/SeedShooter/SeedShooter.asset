@@ -20,94 +20,94 @@ MonoBehaviour:
   - upgradeDescription: "En yak\u0131n d\xFC\u015Fmana h\u0131zla tohum ate\u015Fler."
     stats:
       damage: 6
-      cooldown: 0.9
+      cooldown: 0.55
       area: 1
       amount: 1
       duration: 2
       speed: 11
       hitInterval: 0
       range: 7.5
-  - upgradeDescription: "Hasar +2, sald\u0131r\u0131 h\u0131z\u0131 +%12"
+  - upgradeDescription: "Hasar +2, sald\u0131r\u0131 h\u0131z\u0131 +%10"
     stats:
       damage: 8
-      cooldown: 0.8
+      cooldown: 0.5
       area: 1
       amount: 1
       duration: 2
       speed: 11.5
       hitInterval: 0
       range: 7.5
-  - upgradeDescription: "Hasar +2, sald\u0131r\u0131 h\u0131z\u0131 +%14"
+  - upgradeDescription: "Hasar +2, sald\u0131r\u0131 h\u0131z\u0131 +%9"
     stats:
       damage: 10
-      cooldown: 0.7
+      cooldown: 0.46
       area: 1
       amount: 1
       duration: 2
       speed: 12
       hitInterval: 0
       range: 7.5
-  - upgradeDescription: "Hasar +3, sald\u0131r\u0131 h\u0131z\u0131 +%16"
+  - upgradeDescription: "Hasar +3, sald\u0131r\u0131 h\u0131z\u0131 +%10"
     stats:
       damage: 13
-      cooldown: 0.6
+      cooldown: 0.42
       area: 1
       amount: 1
       duration: 2
       speed: 12.5
       hitInterval: 0
       range: 8
-  - upgradeDescription: "Hasar +3, sald\u0131r\u0131 h\u0131z\u0131 +%15"
+  - upgradeDescription: "Hasar +3, sald\u0131r\u0131 h\u0131z\u0131 +%11"
     stats:
       damage: 16
-      cooldown: 0.52
+      cooldown: 0.38
       area: 1
       amount: 1
       duration: 2
       speed: 13
       hitInterval: 0
       range: 8
-  - upgradeDescription: "+1 tohum, hasar +3, daha seri at\u0131\u015F"
+  - upgradeDescription: "+1 tohum, hasar +3, sald\u0131r\u0131 h\u0131z\u0131 +%9"
     stats:
       damage: 19
-      cooldown: 0.45
+      cooldown: 0.35
       area: 1
       amount: 2
       duration: 2
       speed: 13.5
       hitInterval: 0
       range: 8
-  - upgradeDescription: "Hasar +4, sald\u0131r\u0131 h\u0131z\u0131 +%15"
+  - upgradeDescription: "Hasar +4, sald\u0131r\u0131 h\u0131z\u0131 +%9"
     stats:
       damage: 23
-      cooldown: 0.39
+      cooldown: 0.32
       area: 1
       amount: 2
       duration: 2
       speed: 14
       hitInterval: 0
       range: 8.5
-  - upgradeDescription: "Hasar +4, sald\u0131r\u0131 h\u0131z\u0131 +%15"
+  - upgradeDescription: "Hasar +4, sald\u0131r\u0131 h\u0131z\u0131 +%10"
     stats:
       damage: 27
-      cooldown: 0.34
+      cooldown: 0.29
       area: 1
       amount: 2
       duration: 2
       speed: 15
       hitInterval: 0
       range: 8.5
-  - upgradeDescription: "Hasar +5, sald\u0131r\u0131 h\u0131z\u0131 +%17"
+  - upgradeDescription: "Hasar +5, sald\u0131r\u0131 h\u0131z\u0131 +%12"
     stats:
       damage: 32
-      cooldown: 0.29
+      cooldown: 0.26
       area: 1
       amount: 2
       duration: 2
       speed: 15.5
       hitInterval: 0
       range: 9
-  - upgradeDescription: "MAX: +1 tohum, hasar +8, maksimum sald\u0131r\u0131 h\u0131z\u0131!"
+  - upgradeDescription: "MAX: +1 tohum, hasar +8, sald\u0131r\u0131 h\u0131z\u0131 +%13!"
     stats:
       damage: 40
       cooldown: 0.23

@@ -26,6 +26,11 @@ public class SeedProjectile : MonoBehaviour
     [Tooltip("Ekilen bitkinin sahne ölçeği")]
     [SerializeField, Min(0.1f)] private float plantBaseScale = 1.6f;
 
+    // Final ekimi için (oyuncu tohum silahını hiç almamış olsa da bitki görselleri bulunabilsin)
+    public Texture2D[] PlantSheets => plantSheets;
+    public float PlantFramesPerSecond => plantFramesPerSecond;
+    public float PlantBaseScale => plantBaseScale;
+
     private SeedProjectile sourcePrefab;
     private Vector3 initialScale;
     private bool initializedScale;

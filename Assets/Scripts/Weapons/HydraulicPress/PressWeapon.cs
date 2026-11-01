@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Hidrolik Pres: en yakın düşmanların tepesinden ağır bir pres indirir.
+// Hidrolik Pres: menzildeki rastgele düşmanların tepesinden ağır bir pres indirir.
 // Yere çarptığı anda etki alanındaki tüm düşmanları ezer ve kaybolur (bkz. PressDrop).
 //
 // Stat kullanımı:
@@ -21,6 +21,14 @@ public class PressWeapon : Weapon
     [Range(0f, 1f)]
     [SerializeField] private float targetLeadFactor = 0.6f;
 
+    [Header("Mıknatıs (Manyetik Pres evrimi)")]
+    [Tooltip("0 = kapalı. Pres düşmeden önce ezme alanının bu katı yarıçaptaki düşmanları düşeceği noktaya çeker.")]
+    [SerializeField, Min(0f)] private float magnetRadiusMultiplier;
+    [Tooltip("Düşmeden önce havada bekleyip çektiği süre (sn)")]
+    [SerializeField, Min(0f)] private float magnetDuration = 0.5f;
+    [Tooltip("Çekim sertliği: saniyede kalan mesafenin ne kadarı kapansın (büyüdükçe daha sert)")]
+    [SerializeField, Min(0f)] private float magnetPullRate = 3.5f;
+
     private readonly List<Enemy> targets = new();
 
     protected override bool TryAttack()
@@ -28,10 +36,17 @@ public class PressWeapon : Weapon
         if (pressPrefab == null) return false;
 
         var stats = Stats;
-        Enemy.GetNearest(Owner.position, stats.range, stats.amount, targets);
+        // Menzildeki düşmanlardan rastgele seç: presler hep aynı yakın kümeye düşmesin, ekrana yayılsın
+        Enemy.GetInRadius(Owner.position, stats.range, targets);
         if (targets.Count == 0) return false;
+        for (int i = 0; i < Mathf.Min(stats.amount, targets.Count); i++)
+        {
+            int j = Random.Range(i, targets.Count);
+            (targets[i], targets[j]) = (targets[j], targets[i]);
+        }
 
-        float estimatedFallTime = pressPrefab.GetEstimatedFallTime(stats.speed);
+        bool magnetic = magnetRadiusMultiplier > 0f;
+        float estimatedFallTime = pressPrefab.GetEstimatedFallTime(stats.speed) + (magnetic ? magnetDuration : 0f);
 
         for (int i = 0; i < stats.amount; i++)
         {
@@ -50,6 +65,8 @@ public class PressWeapon : Weapon
                 targetPosition += Random.insideUnitCircle * (stats.area * 0.8f);
 
             var drop = Instantiate(pressPrefab, targetPosition, Quaternion.identity);
+            if (magnetic)
+                drop.EnableMagnet(stats.area * magnetRadiusMultiplier, magnetDuration, magnetPullRate);
             drop.Drop(targetPosition, stats, i * dropStagger);
         }
 

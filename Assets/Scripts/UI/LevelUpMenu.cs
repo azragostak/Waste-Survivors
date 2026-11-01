@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 // Level atlayınca oyunu durdurup 3 seçenek sunan ekran: yeni silah, yeni item ya da sahip olunanı geliştirme.
+// Oyunun başında aynı ekran başlangıç silahı seçimi için de açılır (her oyunda yeniden seçilir).
 // Kartlara tıklayarak veya 1-2-3 tuşlarıyla seçilir. Arka arkaya birden fazla level atlanırsa sırayla tekrar açılır.
 // GameHUD oluşturur.
 public class LevelUpMenu : MonoBehaviour
@@ -16,6 +17,7 @@ public class LevelUpMenu : MonoBehaviour
     private static readonly Color WeaponColor = new Color(0.95f, 0.75f, 0.3f);
     private static readonly Color ItemColor = new Color(0.45f, 0.72f, 1f);
     private static readonly Color HealColor = new Color(0.95f, 0.35f, 0.4f);
+    private static readonly Color EvolutionColor = new Color(0.85f, 0.45f, 1f);
 
     private class Option
     {
@@ -50,7 +52,11 @@ public class LevelUpMenu : MonoBehaviour
     private PlayerPassives passives;
     private PlayerHealth health;
 
+    private TextMeshProUGUI titleText;
+    private TextMeshProUGUI subtitleText;
+
     private int pendingLevelUps;
+    private bool choosingStartWeapon;
     private float shownAt;
     private float timeScaleBeforePause = 1f;
 
@@ -72,12 +78,39 @@ public class LevelUpMenu : MonoBehaviour
 
         if (experience != null)
             experience.LeveledUp += OnLeveledUp;
+
+        // Final ya da ölümde açık menü kapansın, oyun durmuş kalmasın
+        if (GameSession.Instance != null)
+        {
+            GameSession.Instance.Finished += CloseForGood;
+            GameSession.Instance.GameOver += CloseForGood;
+        }
+
+        if (weapons != null && weapons.ChoosesStartingWeapon && pool != null && pool.weapons.Exists(w => w != null))
+        {
+            choosingStartWeapon = true;
+            Show();
+        }
+    }
+
+    private void CloseForGood()
+    {
+        pendingLevelUps = 0;
+        choosingStartWeapon = false;
+        if (!IsOpen) return;
+        panel.SetActive(false);
+        Time.timeScale = timeScaleBeforePause;
     }
 
     void OnDestroy()
     {
         if (experience != null)
             experience.LeveledUp -= OnLeveledUp;
+        if (GameSession.Instance != null)
+        {
+            GameSession.Instance.Finished -= CloseForGood;
+            GameSession.Instance.GameOver -= CloseForGood;
+        }
 
         // Menü açıkken sahne kapanırsa oyun durmuş kalmasın
         if (IsOpen) Time.timeScale = timeScaleBeforePause;
@@ -85,6 +118,8 @@ public class LevelUpMenu : MonoBehaviour
 
     private void OnLeveledUp(int level)
     {
+        if (GameSession.Instance != null && GameSession.Instance.IsOver) return;
+
         pendingLevelUps++;
         if (!IsOpen) Show();
     }
@@ -105,7 +140,18 @@ public class LevelUpMenu : MonoBehaviour
 
     private void Show()
     {
-        BuildOptions();
+        if (choosingStartWeapon)
+        {
+            BuildStartWeaponOptions();
+            UIBuilder.SetText(titleText, "SİLAHINI SEÇ");
+            UIBuilder.SetText(subtitleText, "Bu silahla başlayacaksın  (1 - 2 - 3)");
+        }
+        else
+        {
+            BuildOptions();
+            UIBuilder.SetText(titleText, "LEVEL UP!");
+            UIBuilder.SetText(subtitleText, "Bir geliştirme seç  (1 - 2 - 3)");
+        }
 
         for (int i = 0; i < cards.Count; i++)
         {
@@ -148,7 +194,10 @@ public class LevelUpMenu : MonoBehaviour
         if (Time.unscaledTime - shownAt < InputDelay) return;
 
         currentOptions[index].apply?.Invoke();
-        pendingLevelUps = Mathf.Max(0, pendingLevelUps - 1);
+        if (choosingStartWeapon)
+            choosingStartWeapon = false;
+        else
+            pendingLevelUps = Mathf.Max(0, pendingLevelUps - 1);
 
         if (pendingLevelUps > 0)
         {
@@ -158,6 +207,66 @@ public class LevelUpMenu : MonoBehaviour
 
         panel.SetActive(false);
         Time.timeScale = timeScaleBeforePause;
+    }
+
+    // Havuzdaki silahlar (3'ten fazlaysa rastgele 3'ü)
+    private void BuildStartWeaponOptions()
+    {
+        candidates.Clear();
+        foreach (var data in pool.weapons)
+        {
+            if (data == null) continue;
+            candidates.Add(new Option
+            {
+                tag = "BAŞLANGIÇ SİLAHI",
+                title = data.displayName,
+                description = data.description,
+                icon = UIBuilder.GetWeaponIcon(data),
+                color = WeaponColor,
+                apply = () => weapons.AddOrUpgrade(data),
+            });
+        }
+
+        ShuffleCandidates();
+        currentOptions.Clear();
+        for (int i = 0; i < candidates.Count && currentOptions.Count < OptionCount; i++)
+            currentOptions.Add(candidates[i]);
+    }
+
+    // Maksimum seviyedeki silah + gereken pasif = evrim kartı
+    private void AddEvolutionOptions()
+    {
+        if (weapons == null) return;
+
+        foreach (var weapon in weapons.Weapons)
+        {
+            if (currentOptions.Count >= OptionCount || !weapons.CanEvolve(weapon, passives)) continue;
+
+            var baseData = weapon.Data;
+            var evolved = baseData.evolution;
+            string recipe = baseData.evolutionRequirement != null
+                ? $"{baseData.displayName} + {baseData.evolutionRequirement.displayName}"
+                : baseData.displayName;
+            var target = weapon;
+            currentOptions.Add(new Option
+            {
+                tag = "EVRİM!",
+                title = evolved.displayName,
+                description = $"<color=#e0b0ff>{recipe}</color>\n\n{evolved.description}",
+                icon = UIBuilder.GetWeaponIcon(evolved),
+                color = EvolutionColor,
+                apply = () => weapons.Evolve(target),
+            });
+        }
+    }
+
+    private void ShuffleCandidates()
+    {
+        for (int i = candidates.Count - 1; i > 0; i--)
+        {
+            int j = UnityEngine.Random.Range(0, i + 1);
+            (candidates[i], candidates[j]) = (candidates[j], candidates[i]);
+        }
     }
 
     private void BuildOptions()
@@ -183,7 +292,7 @@ public class LevelUpMenu : MonoBehaviour
                         apply = () => weapons.AddOrUpgrade(data),
                     });
                 }
-                else if (owned == null && weapons.HasFreeSlot)
+                else if (owned == null && weapons.HasFreeSlot && !weapons.HasEvolved(data))
                 {
                     candidates.Add(new Option
                     {
@@ -232,14 +341,11 @@ public class LevelUpMenu : MonoBehaviour
             }
         }
 
-        // Rastgele karıştırıp ilk 3'ü al
-        for (int i = candidates.Count - 1; i > 0; i--)
-        {
-            int j = UnityEngine.Random.Range(0, i + 1);
-            (candidates[i], candidates[j]) = (candidates[j], candidates[i]);
-        }
+        // Rastgele karıştırıp ilk 3'ü al; evrimler her zaman ilk sırada ve garanti
+        ShuffleCandidates();
 
         currentOptions.Clear();
+        AddEvolutionOptions();
         for (int i = 0; i < candidates.Count && currentOptions.Count < OptionCount; i++)
             currentOptions.Add(candidates[i]);
 
@@ -265,6 +371,7 @@ public class LevelUpMenu : MonoBehaviour
         panel = overlay.gameObject;
 
         var title = UIBuilder.CreateText(overlay.transform, "Title", font, 72f, TextAlignmentOptions.Center);
+        titleText = title;
         if (title != null)
         {
             title.text = "LEVEL UP!";
@@ -273,6 +380,7 @@ public class LevelUpMenu : MonoBehaviour
         }
 
         var subtitle = UIBuilder.CreateText(overlay.transform, "Subtitle", font, 26f, TextAlignmentOptions.Center, bold: false);
+        subtitleText = subtitle;
         if (subtitle != null)
         {
             subtitle.text = "Bir geliştirme seç  (1 - 2 - 3)";

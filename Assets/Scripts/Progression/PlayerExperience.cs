@@ -13,7 +13,7 @@ public class PlayerExperience : MonoBehaviour
     [Tooltip("Level 1 -> 2 için gereken XP")]
     [SerializeField, Min(1)] private int baseExperience = 5;
     [Tooltip("Her seviyede gereken XP bu kadar artar")]
-    [SerializeField, Min(0)] private int experienceGrowth = 5;
+    [SerializeField, Min(0)] private int experienceGrowthPerLevel = 9;
 
     [Header("Test")]
     [SerializeField] private bool logLevelUps = true;
@@ -21,7 +21,7 @@ public class PlayerExperience : MonoBehaviour
     public int Level { get; private set; } = 1;
     // Mevcut seviyede biriken XP (level atlayınca artan kısım devreder)
     public int Experience { get; private set; }
-    public int ExperienceToNextLevel => baseExperience + experienceGrowth * (Level - 1);
+    public int ExperienceToNextLevel => baseExperience + experienceGrowthPerLevel * (Level - 1);
     // XP barı için 0-1 arası
     public float Progress => (float)Experience / ExperienceToNextLevel;
 

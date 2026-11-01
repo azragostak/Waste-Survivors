@@ -24,7 +24,14 @@ public class SeedWeapon : Weapon
     [Tooltip("Aynı hedefe birden fazla tohum atıldığında aralarındaki yayılma açısı (derece).")]
     [SerializeField] private float multiShotSpreadAngle = 10f;
 
+    [Header("Ses")]
+    [Tooltip("Tohum fırlatılınca (atış başına bir kez)")]
+    [SerializeField] private AudioClip fireSound;
+    [SerializeField, Range(0f, 1f)] private float fireVolume = 0.45f;
+
     private readonly List<Enemy> targets = new();
+
+    public SeedProjectile SeedPrefab => seedPrefab;
 
     protected override bool TryAttack()
     {
@@ -70,6 +77,7 @@ public class SeedWeapon : Weapon
             SeedProjectile.Spawn(seedPrefab, fireOrigin, dir, stats);
         }
 
+        SfxPlayer.Play(fireSound, fireVolume, minInterval: 0.06f, maxVoices: 4);
         return true;
     }
 

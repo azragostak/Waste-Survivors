@@ -103,7 +103,9 @@ public class WorldHealthBar : MonoBehaviour
     {
         var sr = target.GetComponentInChildren<SpriteRenderer>();
         if (sr == null || sr.sprite == null) return 0.5f;
-        return sr.sprite.bounds.max.y * sr.transform.lossyScale.y;
+        // Görsel child'ı kaydırılmışsa (ör. şişelerde sprite ortalanmış) o ofset de hesaba katılır
+        float visualOffset = sr.transform.position.y - target.transform.position.y;
+        return visualOffset + sr.sprite.bounds.max.y * sr.transform.lossyScale.y;
     }
 
     private static float SafeScale(float value) => Mathf.Abs(value) < 0.0001f ? 1f : value;

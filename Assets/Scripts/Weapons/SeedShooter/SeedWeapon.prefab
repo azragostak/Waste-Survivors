@@ -49,4 +49,6 @@ MonoBehaviour:
   muzzleOffset: {x: 0, y: 0.45}
   targetLeadFactor: 0.5
   multiShotSpreadAngle: 10
+  fireSound: {fileID: 8300000, guid: 20713272afcabe74d8ea5dc383f3fea3, type: 3}
+  fireVolume: 0.45
 

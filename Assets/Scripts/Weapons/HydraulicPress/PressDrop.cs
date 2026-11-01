@@ -22,6 +22,11 @@ public class PressDrop : MonoBehaviour
     [SerializeField] private Color shockwaveColor = new Color(1f, 0.78f, 0.2f);
     [SerializeField] private Color shadowColor = new Color(0f, 0f, 0f, 0.38f);
 
+    [Header("Ses")]
+    [Tooltip("Pres yere çarptığında")]
+    [SerializeField] private AudioClip impactSound;
+    [SerializeField, Range(0f, 1f)] private float impactVolume = 0.8f;
+
     private static Sprite cachedShadowSprite;
 
     private WeaponStats stats;
@@ -33,6 +38,13 @@ public class PressDrop : MonoBehaviour
     private SpriteRenderer shadowRenderer;
     private readonly List<Enemy> hits = new();
 
+    // Manyetik Pres evrimi: düşmeden önce düşmanları düşeceği noktaya çeker (0 = kapalı)
+    private float magnetRadius;
+    private float magnetDuration;
+    private float magnetPullRate;
+    private LineRenderer magnetRing;
+    private static Material magnetRingMaterial;
+
     void Awake()
     {
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
@@ -41,6 +53,15 @@ public class PressDrop : MonoBehaviour
 
     public float GetEstimatedFallTime(float speed) =>
         Mathf.Max(0.12f, dropHeight / Mathf.Max(1f, speed));
+
+    // Drop'tan önce çağrılır. radius: çekim yarıçapı, duration: düşmeden önceki çekim süresi,
+    // pullRate: saniyede kalan mesafenin ne kadarının kapanacağı (üstel; büyüdükçe daha sert çeker)
+    public void EnableMagnet(float radius, float duration, float pullRate)
+    {
+        magnetRadius = radius;
+        magnetDuration = duration;
+        magnetPullRate = pullRate;
+    }
 
     public void Drop(Vector2 targetPosition, WeaponStats weaponStats, float delay = 0f)
     {
@@ -71,6 +92,21 @@ public class PressDrop : MonoBehaviour
         Vector2 startPos = impactPoint + Vector2.up * (scaledImpactYOffset + dropHeight);
         Vector2 endPos = impactPoint + Vector2.up * scaledImpactYOffset;
 
+        // 0. Mıknatıs evresi: pres havada titreşerek bekler, daralan halkanın içindekiler merkeze çekilir
+        if (magnetRadius > 0f)
+        {
+            magnetRing = CreateMagnetRing();
+            transform.localScale = scaledBase;
+            for (float t = 0f; t < magnetDuration; t += Time.deltaTime)
+            {
+                float shake = Mathf.Sin(t * 70f) * 0.04f;
+                transform.position = startPos + new Vector2(shake, 0f);
+                PullEnemies();
+                UpdateMagnetRing(Mathf.Lerp(magnetRadius, stats.area, t / Mathf.Max(0.01f, magnetDuration)), 1f);
+                yield return null;
+            }
+        }
+
         for (float t = 0f; t < fallTime; t += Time.deltaTime)
         {
             float k = t / fallTime;
@@ -86,8 +122,13 @@ public class PressDrop : MonoBehaviour
             );
 
             UpdateShadow(fallCurve);
+            if (magnetRadius > 0f)
+                UpdateMagnetRing(stats.area, 1f - fallCurve);
             yield return null;
         }
+
+        if (magnetRing != null)
+            Destroy(magnetRing.gameObject);
 
         // 2. Yere çarpma ve ezme anı
         transform.position = endPos;
@@ -129,9 +170,54 @@ public class PressDrop : MonoBehaviour
         Destroy(gameObject);
     }
 
+    private void PullEnemies()
+    {
+        float step = 1f - Mathf.Exp(-magnetPullRate * Time.deltaTime);
+        Enemy.GetInRadius(impactPoint, magnetRadius, hits);
+        foreach (var enemy in hits)
+        {
+            if (!enemy.TryGetComponent(out Rigidbody2D body)) continue;
+            Vector2 toCenter = impactPoint - body.position;
+            // Merkezde üst üste yığılmasınlar
+            if (toCenter.sqrMagnitude < 0.3f * 0.3f) continue;
+            body.position += toCenter * step;
+        }
+    }
+
+    private LineRenderer CreateMagnetRing()
+    {
+        if (magnetRingMaterial == null)
+            magnetRingMaterial = new Material(Shader.Find("Sprites/Default"));
+
+        var go = new GameObject("MagnetRing");
+        var line = go.AddComponent<LineRenderer>();
+        line.loop = true;
+        line.useWorldSpace = true;
+        line.positionCount = 48;
+        line.widthMultiplier = 0.08f;
+        line.sharedMaterial = magnetRingMaterial;
+        line.sortingOrder = -4;
+        return line;
+    }
+
+    private void UpdateMagnetRing(float radius, float alpha)
+    {
+        if (magnetRing == null) return;
+        var color = new Color(0.4f, 0.85f, 1f, 0.75f * alpha);
+        magnetRing.startColor = color;
+        magnetRing.endColor = color;
+        for (int i = 0; i < magnetRing.positionCount; i++)
+        {
+            float angle = i * Mathf.PI * 2f / magnetRing.positionCount;
+            magnetRing.SetPosition(i, impactPoint + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius);
+        }
+    }
+
     private void Slam()
     {
         impacted = true;
+        // Aynı anda düşen presler tek bir gümleme gibi duyulmasın diye kısa aralıkla sınırlı
+        SfxPlayer.Play(impactSound, impactVolume, minInterval: 0.07f, maxVoices: 4);
 
         Enemy.GetInRadius(impactPoint, stats.area, hits);
         foreach (var enemy in hits)
@@ -229,6 +315,7 @@ public class PressDrop : MonoBehaviour
 
     void OnDestroy()
     {
+        if (magnetRing != null) Destroy(magnetRing.gameObject);
         if (shadowObject != null)
             Destroy(shadowObject);
     }

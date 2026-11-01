@@ -2,7 +2,8 @@ using UnityEngine;
 
 // Varil düşmanı: Rastgele yerlerden çıkar, oyuncuya doğru yatay eksende
 // fırıl fırıl yuvarlanarak gelir ve saldırır.
-// Sprite "Visual" child objesinde olmalı: dönme/sekme sadece görsele uygulanır, fizik gövdesi etkilenmez.
+// Yuvarlanma, varil_roll.png karelerinin hıza göre oynatılmasıyla gösterilir.
+// Sprite "Visual" child objesinde olmalı: sekme sadece görsele uygulanır, fizik gövdesi etkilenmez.
 public class BarrelEnemy : Enemy
 {
     [Header("Yatay Yuvarlanma Hareketi")]
@@ -21,14 +22,18 @@ public class BarrelEnemy : Enemy
     [Tooltip("Oyuncuyu geçtikten sonra geri dönme mesafesi")]
     [SerializeField] private float overshootDistance = 2.5f;
 
-    [Header("Yuvarlanma Dönüş Görseli")]
-    [Tooltip("Yuvarlanma yarıçapı (dönüş hızını belirler)")]
-    [SerializeField] private float rollRadius = 0.32f;
+    [Header("Yuvarlanma Animasyonu")]
+    [Tooltip("Yuvarlanma kareleri (varil_roll.png). Sağa giderken ileri, sola giderken geri oynar.")]
+    [SerializeField] private Sprite[] rollFrames;
+
+    [Tooltip("Animasyonun bir tam turu için yuvarlanılan mesafe (dünya birimi). Küçüldükçe daha hızlı döner.")]
+    [SerializeField, Min(0.1f)] private float rollDistancePerCycle = 1.2f;
 
     [Tooltip("Yerde yuvarlanırken hafif sekme/ritim miktarı")]
-    [SerializeField] private float groundBounce = 0.04f;
+    [SerializeField] private float groundBounce = 0.03f;
 
-    private float currentRollAngle;
+    // Animasyon turunun neresinde olduğu (0-1); hız ne olursa olsun kareler yol ile senkron kalır
+    private float rollPhase;
     private float moveDirectionX = 1f;
     private float currentVelocityX;
     private Transform visualTransform;
@@ -100,7 +105,7 @@ public class BarrelEnemy : Enemy
             horizontalAcceleration * Time.fixedDeltaTime);
     }
 
-    // Görsel her karede güncellensin (FixedUpdate'te kesik kesik dönüyordu)
+    // Görsel her karede güncellensin (FixedUpdate'te kesik kesik oynar)
     void Update()
     {
         UpdateRollVisual();
@@ -108,17 +113,22 @@ public class BarrelEnemy : Enemy
 
     private void UpdateRollVisual()
     {
-        if (visualTransform == null) return;
+        // Sadece yatay hız animasyonu ilerletir: sağa giderken ileri, sola giderken geri.
+        // Yön değiştirirken hız düştükçe animasyon da yavaşlar, durur ve ters yöne başlar.
+        rollPhase = Mathf.Repeat(rollPhase + currentVelocityX * Time.deltaTime / rollDistancePerCycle, 1f);
 
-        // Sadece yatay hız döndürür: sağa giderken saat yönünde (-), sola giderken tersine (+).
-        // Yön değiştirirken hız düştükçe dönüş de yavaşlar, durur ve ters yöne başlar.
-        float angleDelta = -currentVelocityX * Time.deltaTime / Mathf.Max(0.05f, rollRadius) * Mathf.Rad2Deg;
-        currentRollAngle = (currentRollAngle + angleDelta) % 360f;
-        visualTransform.localRotation = Quaternion.Euler(0f, 0f, currentRollAngle);
+        if (spriteRenderer != null && rollFrames != null && rollFrames.Length > 0)
+        {
+            int frame = Mathf.Min(rollFrames.Length - 1, (int)(rollPhase * rollFrames.Length));
+            if (rollFrames[frame] != null)
+                spriteRenderer.sprite = rollFrames[frame];
+        }
+
+        if (visualTransform == null) return;
 
         // Yerde yuvarlanırken hafif ritmik sekme (yavaşken azalır)
         float speedFactor = Mathf.Clamp01(Mathf.Abs(currentVelocityX) / Mathf.Max(0.01f, horizontalSpeed));
-        float bounce = Mathf.Abs(Mathf.Sin(currentRollAngle * Mathf.Deg2Rad * 2f)) * groundBounce * speedFactor;
+        float bounce = Mathf.Abs(Mathf.Sin(rollPhase * Mathf.PI * 4f)) * groundBounce * speedFactor;
         visualTransform.localPosition = new Vector3(0f, bounce, 0f);
     }
 }

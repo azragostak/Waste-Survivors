@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 44658b4f4b73e86429c03ef2e8f11c28, type: 3}
+  m_Sprite: {fileID: -848295999, guid: bdc0ef53403b4ed99eb4c11b0de2e4d5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -162,9 +162,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 15
+  healthScaling: 0.8
   moveSpeed: 1.4
   maxSpeed: 1.6
-  spawnWeight: 0.4
   hitFlashColor: {r: 1, g: 0.4, b: 0.4, a: 1}
   hitFlashDuration: 0.1
   contactDamage: 10
@@ -175,8 +175,19 @@ MonoBehaviour:
   verticalSteerSpeed: 1.8
   maxVerticalSpeed: 0.8
   overshootDistance: 2.5
-  rollRadius: 0.32
-  groundBounce: 0.04
+  rollFrames:
+  - {fileID: -848295999, guid: bdc0ef53403b4ed99eb4c11b0de2e4d5, type: 3}
+  - {fileID: -1765766035, guid: bdc0ef53403b4ed99eb4c11b0de2e4d5, type: 3}
+  - {fileID: -455766268, guid: bdc0ef53403b4ed99eb4c11b0de2e4d5, type: 3}
+  - {fileID: -1025538195, guid: bdc0ef53403b4ed99eb4c11b0de2e4d5, type: 3}
+  - {fileID: -1052444421, guid: bdc0ef53403b4ed99eb4c11b0de2e4d5, type: 3}
+  - {fileID: 924984951, guid: bdc0ef53403b4ed99eb4c11b0de2e4d5, type: 3}
+  - {fileID: -1538702309, guid: bdc0ef53403b4ed99eb4c11b0de2e4d5, type: 3}
+  - {fileID: 467275597, guid: bdc0ef53403b4ed99eb4c11b0de2e4d5, type: 3}
+  - {fileID: -1988330470, guid: bdc0ef53403b4ed99eb4c11b0de2e4d5, type: 3}
+  - {fileID: 1036216755, guid: bdc0ef53403b4ed99eb4c11b0de2e4d5, type: 3}
+  rollDistancePerCycle: 1.2
+  groundBounce: 0.03
 --- !u!1 &100100007
 GameObject:
   m_ObjectHideFlags: 0

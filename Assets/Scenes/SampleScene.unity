@@ -310,6 +310,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
+  enemyPartRatio: 0.85
 --- !u!114 &27020609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -322,9 +323,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d3acb4d82aa4b86920a7fd6d76cf7f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  chooseStartingWeapon: 1
   startingWeapons:
-  - {fileID: 11400000, guid: a4b810c23f4d49e18190b72c65d1e307, type: 2}
-  - {fileID: 11400000, guid: b5c921d34e5f48a29201c83d76e2f407, type: 2}
+  - {fileID: 11400000, guid: 7be9d0d9e6794740ba173274081877b5, type: 2}
   maxWeapons: 3
   debugLevelUpKey: 1
 --- !u!114 &27020610
@@ -341,7 +342,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pickupRadius: 1.5
   baseExperience: 5
-  experienceGrowth: 5
+  experienceGrowthPerLevel: 9
   logLevelUps: 1
 --- !u!114 &27020611
 MonoBehaviour:
@@ -373,6 +374,8 @@ MonoBehaviour:
   maxHealth: 100
   invulnerabilityDuration: 0.5
   hitFlashColor: {r: 1, g: 0.4, b: 0.4, a: 1}
+  regenPerSecond: 1
+  regenDelay: 3
 --- !u!1 &239285160
 GameObject:
   m_ObjectHideFlags: 0
@@ -100479,6 +100482,8 @@ Tilemap:
     m_Data: {fileID: 8337635741969537736, guid: bae7d859abb7e654983c7d1c3ac3fb3a, type: 3}
   - m_RefCount: 2424
     m_Data: {fileID: -7989774811045580423, guid: bae7d859abb7e654983c7d1c3ac3fb3a, type: 3}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   m_TileMatrixArray:
   - m_RefCount: 10000
     m_Data:
@@ -100708,11 +100713,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e11064235e901054bbbea6c992ab91c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  upgradePool: {fileID: 0}
   xpBarHeight: 24
   xpFillColor: {r: 0.3, g: 0.8, b: 0.35, a: 1}
   xpBackgroundColor: {r: 0, g: 0, b: 0, a: 0.65}
-  weaponSlotCount: 6
-  passiveSlotCount: 6
   slotSize: 56
   slotSpacing: 6
   weaponSlotBorder: {r: 0.9, g: 0.75, b: 0.35, a: 0.9}
@@ -100825,14 +100829,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a717c5a9aa64e47be15d8f651657659, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefabs:
-  - {fileID: 100100006, guid: dfc859d0d1614b5f9c4debaf26a92e3b, type: 3}
-  - {fileID: 200100006, guid: 1968227425fa4ed194ec15c94bd7ea63, type: 3}
+  timeline: {fileID: 0}
   player: {fileID: 27020607}
-  spawnInterval: 1
-  enemiesPerSpawn: 2
-  maxEnemies: 150
   offscreenPadding: 1.5
+  relocateDistanceFactor: 1.7
+  swarmCapAllowance: 1.25
 --- !u!4 &1437171495
 Transform:
   m_ObjectHideFlags: 0
